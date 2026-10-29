@@ -1,0 +1,15 @@
+@model Collection
+@{
+    ViewData["Title"] = "Nova coleção";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo / Coleções</span>
+        <h2>Nova coleção</h2>
+        <p>Crie uma atmosfera com nome, capa e narrativa próprios.</p>
+    </div>
+    <a class="admin-btn admin-btn--ghost" href="/admin/collections"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+</div>
+
+@await Html.PartialAsync("_CollectionForm", Model)

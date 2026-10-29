@@ -1,0 +1,71 @@
+@model IEnumerable<Category>
+@{
+    ViewData["Title"] = "Categorias";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo</span>
+        <h2>Categorias</h2>
+        <p>Organize as frentes da loja: roupas, joias e acessórios. A ordem define os atalhos do site.</p>
+    </div>
+    <a class="admin-btn admin-btn--gold" href="/admin/categories/create">
+        <svg class="icon"><use href="#i-plus"></use></svg> Nova categoria
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <section class="admin-card">
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-layers"></use></svg>
+            <h3>Nenhuma categoria cadastrada</h3>
+            <p>Comece criando as frentes principais da loja.</p>
+            <a class="admin-btn admin-btn--gold" href="/admin/categories/create">Criar categoria</a>
+        </div>
+    </section>
+}
+else
+{
+    <div class="admin-category-grid">
+        @foreach (var category in Model)
+        {
+            <article class="category-admin-card">
+                <div class="category-admin-card__media">
+                    @if (!string.IsNullOrWhiteSpace(category.ImageUrl))
+                    {
+                        <img src="@category.ImageUrl" alt="@category.Name" />
+                    }
+                    else
+                    {
+                        <span class="category-admin-card__empty"><svg class="icon"><use href="#i-layers"></use></svg></span>
+                    }
+                    <span class="admin-status @(category.IsActive ? "admin-status--ok" : "admin-status--off")"><i></i>@(category.IsActive ? "Ativa" : "Inativa")</span>
+                </div>
+                <div class="category-admin-card__body">
+                    <span class="admin-eyebrow">@(category.Eyebrow ?? "Categoria")</span>
+                    <h3>@category.Name</h3>
+                    <p>@(string.IsNullOrWhiteSpace(category.Description) ? "Sem descrição cadastrada." : category.Description)</p>
+                    <div class="category-admin-card__meta">
+                        <span><svg class="icon"><use href="#i-box"></use></svg> @category.Products.Count produtos</span>
+                        <span>Ordem @category.SortOrder</span>
+                    </div>
+                    <div class="category-admin-card__actions">
+                        <a class="admin-btn admin-btn--ghost admin-btn--sm" href="/@category.Slug" target="_blank" rel="noopener">
+                            <svg class="icon"><use href="#i-eye"></use></svg> Ver
+                        </a>
+                        <a class="admin-btn admin-btn--dark admin-btn--sm" href="/admin/categories/edit/@category.Id">
+                            <svg class="icon"><use href="#i-edit"></use></svg> Editar
+                        </a>
+                        <form action="/admin/categories/delete/@category.Id" method="post" data-confirm="Remover a categoria “@category.Name”? Categorias com produtos serão apenas desativadas.">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-icon-btn admin-icon-btn--danger" type="submit" title="Excluir" aria-label="Excluir categoria">
+                                <svg class="icon"><use href="#i-trash"></use></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}

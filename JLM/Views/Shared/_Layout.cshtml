@@ -1,0 +1,276 @@
+﻿@inject ICartService CartService
+@inject IWishlistService WishlistService
+@{
+    var path = Context.Request.Path.Value?.ToLowerInvariant() ?? "/";
+    string NavClass(string href)
+    {
+        var active = href == "/" ? path == "/" : path.StartsWith(href, StringComparison.OrdinalIgnoreCase);
+        return active ? "nav-link is-active" : "nav-link";
+    }
+    var cartCount = await CartService.GetCountAsync();
+    var wishlistCount = await WishlistService.GetCountAsync();
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var firstName = User.Identity?.Name?.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+    var currentUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var pageTitle = ViewData["Title"] as string;
+    var metaDescription = ViewData["Description"] as string ?? "JLM — moda masculina premium, joias e acessórios. Estilo que impõe presença.";
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101010" />
+    <title>@(string.IsNullOrWhiteSpace(pageTitle) ? "JLM — Estilo que impõe presença" : $"{pageTitle} | JLM")</title>
+    <meta name="description" content="@metaDescription" />
+    <meta property="og:title" content="@(string.IsNullOrWhiteSpace(pageTitle) ? "JLM — Estilo que impõe presença" : pageTitle)" />
+    <meta property="og:description" content="@metaDescription" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/images/brand/joao-laumir.png" />
+    <link rel="icon" type="image/svg+xml" href="~/images/brand/jlm-mark.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="@ViewData["BodyClass"]">
+    <a class="skip-link" href="#main">Ir para o conteúdo</a>
+    @await Html.PartialAsync("_Icons")
+
+    <div class="announcement">
+        <div class="container announcement__inner">
+            <span>Frete grátis acima de R$ 500</span>
+            <span class="announcement__dot" aria-hidden="true"></span>
+            <span>Até 6x sem juros</span>
+            <span class="announcement__dot" aria-hidden="true"></span>
+            <span>Edição Laumir disponível</span>
+        </div>
+    </div>
+
+    <header class="site-header" data-header>
+        <div class="container site-header__inner">
+            <button class="icon-btn site-header__menu" type="button" data-menu-open aria-label="Abrir menu" aria-controls="mobile-menu">
+                <svg class="icon"><use href="#i-menu"></use></svg>
+            </button>
+
+            <a class="brand" asp-controller="Home" asp-action="Index" aria-label="JLM — página inicial">
+                <span class="brand__mark">JLM</span>
+                <span class="brand__tag">Estilo que impõe presença</span>
+            </a>
+
+            <nav class="main-nav" aria-label="Navegação principal">
+                <a class="@NavClass("/")" asp-controller="Home" asp-action="Index">Início</a>
+                <a class="@NavClass("/quem-sou")" href="/quem-sou">Quem Sou</a>
+                <a class="@NavClass("/roupas")" href="/roupas">Roupas</a>
+                <a class="@NavClass("/joias")" href="/joias">Joias</a>
+                <a class="@NavClass("/acessorios")" href="/acessorios">Acessórios</a>
+                <a class="@NavClass("/colecoes")" href="/colecoes">Coleções</a>
+                <a class="@NavClass("/contato")" href="/contato">Contato</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="icon-btn" type="button" data-search-open aria-label="Buscar produtos">
+                    <svg class="icon"><use href="#i-search"></use></svg>
+                </button>
+                <a class="icon-btn header-actions__wishlist" href="/favoritos" aria-label="Favoritos">
+                    <svg class="icon"><use href="#i-heart"></use></svg>
+                    <span class="count-badge @(wishlistCount == 0 ? "is-hidden" : "")" data-wishlist-count>@wishlistCount</span>
+                </a>
+                @if (isAuthenticated)
+                {
+                    <details class="account-menu">
+                        <summary class="icon-btn" aria-label="Minha conta">
+                            <svg class="icon"><use href="#i-user"></use></svg>
+                        </summary>
+                        <div class="account-menu__panel">
+                            <p class="account-menu__hello">Olá, <strong>@firstName</strong></p>
+                            <a href="/conta">Minha conta</a>
+                            <a href="/conta/pedidos">Meus pedidos</a>
+                            <a href="/favoritos">Favoritos</a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="/admin">Painel administrativo</a>
+                            }
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit">Sair da conta</button>
+                            </form>
+                        </div>
+                    </details>
+                }
+                else
+                {
+                    <a class="icon-btn" href="/conta/entrar" aria-label="Entrar na conta">
+                        <svg class="icon"><use href="#i-user"></use></svg>
+                    </a>
+                }
+                <a class="icon-btn header-actions__cart" href="/carrinho" aria-label="Carrinho">
+                    <svg class="icon"><use href="#i-bag"></use></svg>
+                    <span class="count-badge @(cartCount == 0 ? "is-hidden" : "")" data-cart-count>@cartCount</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="search-overlay" id="search-overlay" aria-hidden="true">
+        <div class="search-overlay__top">
+            <div class="container search-overlay__top-inner">
+                <span class="search-overlay__label">Busca JLM</span>
+                <button class="icon-btn" type="button" data-search-close aria-label="Fechar busca">
+                    <svg class="icon"><use href="#i-close"></use></svg>
+                </button>
+            </div>
+        </div>
+        <div class="container search-overlay__body">
+            <form action="/busca" method="get" role="search">
+                <label class="sr-only" for="search-input">Buscar produtos</label>
+                <div class="search-overlay__field">
+                    <input id="search-input" type="search" name="q" placeholder="O que você procura?" autocomplete="off" data-search-input />
+                    <button type="submit" aria-label="Buscar">
+                        <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </button>
+                </div>
+            </form>
+            <div class="search-overlay__suggestions">
+                <p>Buscas em alta</p>
+                <div class="search-overlay__tags">
+                    <a href="/busca?q=corrente">Correntes</a>
+                    <a href="/busca?q=moletom">Moletons</a>
+                    <a href="/busca?q=oculos">Óculos</a>
+                    <a href="/busca?q=couro">Couro</a>
+                    <a href="/colecoes/edicao-laumir">Edição Laumir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+        <div class="mobile-menu__head">
+            <span class="brand__mark">JLM</span>
+            <button class="icon-btn" type="button" data-menu-close aria-label="Fechar menu">
+                <svg class="icon"><use href="#i-close"></use></svg>
+            </button>
+        </div>
+        <nav class="mobile-menu__nav" aria-label="Navegação mobile">
+            <a href="/"><span>Início</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+            <a href="/quem-sou"><span>Quem Sou</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+            <a href="/roupas"><span>Roupas</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+            <a href="/joias"><span>Joias</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+            <a href="/acessorios"><span>Acessórios</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+            <a href="/colecoes"><span>Coleções</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+            <a href="/contato"><span>Contato</span><svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+        </nav>
+        <div class="mobile-menu__foot">
+            @if (isAuthenticated)
+            {
+                <a href="/conta" class="btn btn--outline btn--block">Minha conta</a>
+            }
+            else
+            {
+                <a href="/conta/entrar" class="btn btn--outline btn--block">Entrar</a>
+            }
+            <a href="/carrinho" class="mobile-menu__cart">
+                <svg class="icon"><use href="#i-bag"></use></svg>
+                Carrinho <span data-cart-count>@cartCount</span>
+            </a>
+            <div class="mobile-menu__social">
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="icon"><use href="#i-instagram"></use></svg></a>
+                <a href="mailto:contato@jlmstore.com.br" aria-label="E-mail"><svg class="icon"><use href="#i-mail"></use></svg></a>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Toasts")
+
+    <main id="main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="newsletter-band">
+                <div>
+                    <span class="eyebrow eyebrow--light">Lista privada JLM</span>
+                    <h2>Acesso antes de todo mundo.</h2>
+                    <p>Lançamentos limitados, edições assinadas e convites. Sem ruído.</p>
+                </div>
+                <form action="/newsletter" method="post" class="newsletter-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@currentUrl" />
+                    <label class="sr-only" for="newsletter-email">Seu e-mail</label>
+                    <input id="newsletter-email" type="email" name="email" placeholder="Seu melhor e-mail" required />
+                    <button type="submit" class="btn btn--gold">
+                        Inscrever <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </button>
+                </form>
+            </div>
+
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a class="brand brand--footer" href="/">
+                        <span class="brand__mark">JLM</span>
+                        <span class="brand__tag">Estilo que impõe presença</span>
+                    </a>
+                    <p>Moda masculina premium, joias e acessórios. Peças selecionadas para quem entende que presença é um detalhe construído todos os dias.</p>
+                    <div class="footer-brand__mascot">
+                        <img src="~/images/brand/joao-laumir.png" alt="João Laumir, mascote oficial da JLM" loading="lazy" />
+                        <div>
+                            <strong>João Laumir</strong>
+                            <span>Fundador & mascote oficial</span>
+                        </div>
+                    </div>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="icon"><use href="#i-instagram"></use></svg></a>
+                        <a href="mailto:contato@jlmstore.com.br" aria-label="E-mail"><svg class="icon"><use href="#i-mail"></use></svg></a>
+                        <a href="https://wa.me/5511999990000" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="icon"><use href="#i-whatsapp"></use></svg></a>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Institucional</h3>
+                    <a href="/quem-sou">Quem sou</a>
+                    <a href="/colecoes">Coleções</a>
+                    <a href="/contato">Contato</a>
+                    <a href="/privacidade">Privacidade</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Comprar</h3>
+                    <a href="/roupas">Roupas</a>
+                    <a href="/joias">Joias</a>
+                    <a href="/acessorios">Acessórios</a>
+                    <a href="/catalogo">Catálogo completo</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Ajuda</h3>
+                    <a href="/conta/pedidos">Meus pedidos</a>
+                    <a href="/contato">Trocas e devoluções</a>
+                    <a href="/contato">Guia de tamanhos</a>
+                    <a href="/contato">Formas de pagamento</a>
+                </div>
+                <div class="footer-col footer-col--contact">
+                    <h3>Atendimento</h3>
+                    <a href="mailto:contato@jlmstore.com.br"><svg class="icon"><use href="#i-mail"></use></svg> contato@jlmstore.com.br</a>
+                    <a href="https://wa.me/5511999990000"><svg class="icon"><use href="#i-whatsapp"></use></svg> (11) 99999-0000</a>
+                    <p><svg class="icon"><use href="#i-clock"></use></svg> Seg–Sex, 9h às 18h</p>
+                    <p><svg class="icon"><use href="#i-pin"></use></svg> São Paulo — Brasil</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© @DateTime.Now.Year JLM. Todos os direitos reservados.</p>
+                <div class="payment-badges" aria-label="Formas de pagamento">
+                    <span>PIX</span><span>VISA</span><span>MASTER</span><span>ELO</span><span>BOLETO</span>
+                </div>
+                <p class="footer-bottom__secure"><svg class="icon"><use href="#i-lock"></use></svg> Compra segura</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="page-loader" data-page-loader aria-hidden="true"><span></span></div>
+
+    @await Html.PartialAsync("_AjaxToast")
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

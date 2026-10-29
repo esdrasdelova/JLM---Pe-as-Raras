@@ -1,0 +1,264 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var maxRevenue = Model.MonthlySales.Count == 0 ? 1m : Math.Max(1m, Model.MonthlySales.Max(m => m.Revenue));
+    var statusItems = new (OrderStatus Status, string Label, string Tone)[]
+    {
+        (OrderStatus.Pending, "Aguardando", "warn"),
+        (OrderStatus.Paid, "Pagos", "ok"),
+        (OrderStatus.Processing, "Preparando", "gold"),
+        (OrderStatus.Shipped, "Enviados", "info"),
+        (OrderStatus.Delivered, "Entregues", "ok"),
+        (OrderStatus.Cancelled, "Cancelados", "danger")
+    };
+    var totalStatus = Math.Max(1, Model.StatusCounts.Values.Sum());
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Visão geral</span>
+        <h2>Bom te ver, @(User.Identity?.Name?.Split(' ').FirstOrDefault()).</h2>
+        <p>Aqui está o pulso da operação JLM de hoje, @DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("pt-BR")).</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/orders?status=Pending">
+            <svg class="icon"><use href="#i-bag"></use></svg> Pedidos pendentes
+        </a>
+        <a class="admin-btn admin-btn--gold" href="/admin/products/create">
+            <svg class="icon"><use href="#i-plus"></use></svg> Novo produto
+        </a>
+    </div>
+</div>
+
+<div class="stat-grid">
+    <article class="stat-card stat-card--gold">
+        <div class="stat-card__head">
+            <span class="stat-card__icon"><svg class="icon"><use href="#i-chart"></use></svg></span>
+            <span class="stat-card__trend">Faturamento</span>
+        </div>
+        <strong>@Model.Revenue.ToBrl()</strong>
+        <p>@Model.RevenueThisMonth.ToBrl() nos últimos 30 dias</p>
+        <span class="stat-card__spark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-card__head">
+            <span class="stat-card__icon"><svg class="icon"><use href="#i-bag"></use></svg></span>
+            <span class="stat-card__trend">Pedidos</span>
+        </div>
+        <strong>@Model.OrdersCount</strong>
+        <p>@Model.OrdersThisMonth novos neste mês</p>
+        <span class="stat-card__badge">@Model.PendingOrders aguardando pagamento</span>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-card__head">
+            <span class="stat-card__icon"><svg class="icon"><use href="#i-users"></use></svg></span>
+            <span class="stat-card__trend">Clientes</span>
+        </div>
+        <strong>@Model.CustomersCount</strong>
+        <p>Ticket médio de @Model.AverageTicket.ToBrl()</p>
+        <a class="stat-card__link" href="/admin/customers">Ver clientes <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-card__head">
+            <span class="stat-card__icon"><svg class="icon"><use href="#i-box"></use></svg></span>
+            <span class="stat-card__trend">Catálogo</span>
+        </div>
+        <strong>@Model.ProductsCount</strong>
+        <p>Produtos ativos na loja</p>
+        <a class="stat-card__link stat-card__link--warn" href="/admin/products?status=low">
+            <svg class="icon"><use href="#i-alert"></use></svg> @Model.LowStockCount com estoque baixo
+        </a>
+    </article>
+</div>
+
+<div class="admin-grid admin-grid--2-1">
+    <section class="admin-card admin-card--chart">
+        <div class="admin-card__head">
+            <div>
+                <span class="admin-eyebrow">Últimos 6 meses</span>
+                <h3>Receita consolidada</h3>
+            </div>
+            <div class="chart-legend"><span class="chart-legend__dot"></span> Receita</div>
+        </div>
+        <div class="chart" role="img" aria-label="Gráfico de receita dos últimos seis meses">
+            <div class="chart__grid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="chart__bars">
+                @foreach (var month in Model.MonthlySales)
+                {
+                    var height = (int)Math.Round((double)(month.Revenue / maxRevenue * 100));
+                    <div class="chart__bar-group" title="@month.Label · @month.Revenue.ToBrl()">
+                        <span class="chart__value">@month.Revenue.ToBrl()</span>
+                        <div class="chart__bar" style="height:@(Math.Max(3, height))%">
+                            <span>@month.Orders</span>
+                        </div>
+                        <span class="chart__label">@month.Label</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="chart__foot">
+            <div><span>Receita total</span><strong>@Model.Revenue.ToBrl()</strong></div>
+            <div><span>Pedidos válidos</span><strong>@Model.OrdersCount</strong></div>
+            <div><span>Ticket médio</span><strong>@Model.AverageTicket.ToBrl()</strong></div>
+        </div>
+    </section>
+
+    <section class="admin-card">
+        <div class="admin-card__head">
+            <div>
+                <span class="admin-eyebrow">Distribuição</span>
+                <h3>Pedidos por status</h3>
+            </div>
+            <a class="admin-card__link" href="/admin/orders">Todos</a>
+        </div>
+        <ul class="status-list">
+            @foreach (var item in statusItems)
+            {
+                var count = Model.StatusCounts.GetValueOrDefault(item.Status);
+                var percent = (int)Math.Round(count / (double)totalStatus * 100);
+                <li>
+                    <span class="status-list__label"><i class="tone tone--@item.Tone"></i>@item.Label</span>
+                    <span class="status-list__bar"><i class="tone-bg--@item.Tone" style="width:@(Math.Max(2, percent))%"></i></span>
+                    <strong>@count</strong>
+                </li>
+            }
+        </ul>
+        <div class="admin-card__note">
+            <svg class="icon"><use href="#i-info"></use></svg>
+            Pedidos cancelados não entram no faturamento consolidado.
+        </div>
+    </section>
+</div>
+
+<div class="admin-grid admin-grid--2-1">
+    <section class="admin-card">
+        <div class="admin-card__head">
+            <div>
+                <span class="admin-eyebrow">Movimento recente</span>
+                <h3>Últimos pedidos</h3>
+            </div>
+            <a class="admin-card__link" href="/admin/orders">Ver todos <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+
+        @if (Model.RecentOrders.Count == 0)
+        {
+            <div class="admin-empty">
+                <svg class="icon"><use href="#i-bag"></use></svg>
+                <p>Nenhum pedido registrado ainda.</p>
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td><a class="admin-table__strong" href="/admin/orders/@order.OrderNumber">@order.OrderNumber</a></td>
+                                <td>
+                                    <div class="table-person">
+                                        <span class="table-avatar">@order.CustomerName.Initials()</span>
+                                        <div><strong>@order.CustomerName</strong><span>@order.Email</span></div>
+                                    </div>
+                                </td>
+                                <td>@order.CreatedAt.ToLocalTime().ToString("dd/MM/yy HH:mm")</td>
+                                <td class="admin-table__num">@order.Total.ToBrl()</td>
+                                <td><span class="@OrderDisplay.CssClass(order.Status)">@order.StatusLabel</span></td>
+                                <td><a class="admin-table__action" href="/admin/orders/@order.OrderNumber" aria-label="Ver pedido"><svg class="icon"><use href="#i-chevron-right"></use></svg></a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="admin-card">
+        <div class="admin-card__head">
+            <div>
+                <span class="admin-eyebrow">Estoque</span>
+                <h3>Reposição prioritária</h3>
+            </div>
+            <a class="admin-card__link" href="/admin/products?status=low">Ver</a>
+        </div>
+        @if (Model.LowStockProducts.Count == 0)
+        {
+            <div class="admin-empty admin-empty--ok">
+                <svg class="icon"><use href="#i-check"></use></svg>
+                <p>Estoque saudável. Nenhuma peça crítica.</p>
+            </div>
+        }
+        else
+        {
+            <ul class="stock-list">
+                @foreach (var product in Model.LowStockProducts)
+                {
+                    <li>
+                        <img src="@product.ImageUrl" alt="@product.Name" />
+                        <div>
+                            <strong>@product.Name</strong>
+                            <span>@product.Sku</span>
+                        </div>
+                        <em class="@(product.Stock <= 5 ? "is-critical" : "")">@product.Stock un.</em>
+                        <a class="admin-table__action" href="/admin/products/edit/@product.Id" aria-label="Editar produto"><svg class="icon"><use href="#i-edit"></use></svg></a>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</div>
+
+<section class="admin-card">
+    <div class="admin-card__head">
+        <div>
+            <span class="admin-eyebrow">Performance</span>
+            <h3>Peças mais vendidas</h3>
+        </div>
+        <a class="admin-card__link" href="/admin/products">Gerenciar catálogo</a>
+    </div>
+    @if (Model.TopProducts.Count == 0)
+    {
+        <div class="admin-empty">
+            <svg class="icon"><use href="#i-sparkle"></use></svg>
+            <p>As vendas aparecerão aqui assim que os primeiros pedidos forem aprovados.</p>
+        </div>
+    }
+    else
+    {
+        <div class="top-products">
+            @foreach (var product in Model.TopProducts)
+            {
+                <article class="top-product">
+                    <span class="top-product__rank">#@(Model.TopProducts.ToList().IndexOf(product) + 1)</span>
+                    <img src="@product.ImageUrl" alt="@product.Name" />
+                    <div class="top-product__body">
+                        <strong>@product.Name</strong>
+                        <span>@product.UnitsSold unidades vendidas</span>
+                    </div>
+                    <em>@product.Revenue.ToBrl()</em>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<div class="admin-quick-actions">
+    <a href="/admin/products/create"><svg class="icon"><use href="#i-plus"></use></svg><span>Novo produto</span></a>
+    <a href="/admin/collections/create"><svg class="icon"><use href="#i-gem"></use></svg><span>Nova coleção</span></a>
+    <a href="/admin/coupons/create"><svg class="icon"><use href="#i-ticket"></use></svg><span>Novo cupom</span></a>
+    <a href="/admin/messages?filter=unread"><svg class="icon"><use href="#i-mail"></use></svg><span>Mensagens (@Model.UnreadMessages)</span></a>
+</div>

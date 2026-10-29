@@ -1,0 +1,25 @@
+@{
+    var toasts = new List<(string Type, string Icon, string? Message)>
+    {
+        ("success", "i-check", TempData["Success"] as string),
+        ("error", "i-alert", TempData["Error"] as string),
+        ("info", "i-info", TempData["Info"] as string),
+        ("success", "i-ticket", TempData["CouponSuccess"] as string),
+        ("error", "i-ticket", TempData["CouponError"] as string)
+    }.Where(t => !string.IsNullOrWhiteSpace(t.Message)).ToList();
+}
+@if (toasts.Count > 0)
+{
+    <div class="toast-stack" data-toast-stack aria-live="polite">
+        @foreach (var toast in toasts)
+        {
+            <div class="toast toast--@toast.Type" role="status" data-toast>
+                <span class="toast__icon"><svg class="icon"><use href="#@toast.Icon"></use></svg></span>
+                <p>@toast.Message</p>
+                <button type="button" class="toast__close" data-toast-close aria-label="Fechar aviso">
+                    <svg class="icon"><use href="#i-close"></use></svg>
+                </button>
+            </div>
+        }
+    </div>
+}

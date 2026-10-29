@@ -1,0 +1,42 @@
+@{
+    var accountPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "/conta";
+    string LinkClass(string href) => accountPath == href ? "account-nav__link is-active" : "account-nav__link";
+}
+<aside class="account-nav" aria-label="Navegação da conta">
+    <div class="account-nav__head">
+        <span class="account-nav__avatar">@(User.Identity?.Name?.Initials() ?? "JL")</span>
+        <div>
+            <strong>@User.Identity?.Name</strong>
+            <span>@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</span>
+        </div>
+    </div>
+    <nav>
+        <a class="@LinkClass("/conta")" href="/conta">
+            <svg class="icon"><use href="#i-user"></use></svg> Visão geral
+        </a>
+        <a class="@LinkClass("/conta/pedidos")" href="/conta/pedidos">
+            <svg class="icon"><use href="#i-box"></use></svg> Meus pedidos
+        </a>
+        <a class="@(accountPath == "/conta/editar" ? "account-nav__link is-active" : "account-nav__link")" href="/conta/editar">
+            <svg class="icon"><use href="#i-edit"></use></svg> Dados pessoais
+        </a>
+        <a class="@(accountPath == "/conta/senha" ? "account-nav__link is-active" : "account-nav__link")" href="/conta/senha">
+            <svg class="icon"><use href="#i-lock"></use></svg> Segurança
+        </a>
+        <a class="@LinkClass("/favoritos")" href="/favoritos">
+            <svg class="icon"><use href="#i-heart"></use></svg> Favoritos
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="account-nav__link account-nav__link--admin" href="/admin">
+                <svg class="icon"><use href="#i-grid"></use></svg> Painel administrativo
+            </a>
+        }
+    </nav>
+    <form asp-controller="Account" asp-action="Logout" method="post" class="account-nav__logout">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="account-nav__link">
+            <svg class="icon"><use href="#i-logout"></use></svg> Sair da conta
+        </button>
+    </form>
+</aside>

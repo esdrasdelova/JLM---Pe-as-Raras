@@ -1,0 +1,326 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Moda masculina premium";
+    ViewData["Description"] = "JLM — moda masculina premium, joias e acessórios. Peças selecionadas para quem entende que presença é um detalhe construído todos os dias.";
+    ViewData["BodyClass"] = "page-home";
+
+    var categoryIcons = new Dictionary<string, string>
+    {
+        ["roupas"] = "i-hanger",
+        ["joias"] = "i-gem",
+        ["acessorios"] = "i-glasses"
+    };
+    var heroProduct = Model.FeaturedProducts.FirstOrDefault();
+}
+
+<section class="hero">
+    <div class="hero__grain" aria-hidden="true"></div>
+    <div class="container hero__inner">
+        <div class="hero__copy">
+            <span class="eyebrow eyebrow--light" data-reveal>Coleção 2026 · Edição Laumir</span>
+            <h1 class="hero__title" data-reveal>
+                Estilo que<br />
+                <em>impõe presença.</em>
+            </h1>
+            <p class="hero__lead" data-reveal>
+                Moda masculina premium, joias e acessórios. Peças de acabamento impecável
+                para homens que não precisam levantar a voz para serem notados.
+            </p>
+            <div class="hero__actions" data-reveal>
+                <a class="btn btn--gold" href="/catalogo">
+                    Explorar coleção <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                </a>
+                <a class="btn btn--ghost-light" href="/quem-sou">Conheça a JLM</a>
+            </div>
+            <div class="hero__proof" data-reveal>
+                <div>
+                    <strong>@Model.ProductCount+</strong>
+                    <span>peças exclusivas</span>
+                </div>
+                <div>
+                    <strong>4.9</strong>
+                    <span>avaliação média</span>
+                </div>
+                <div>
+                    <strong>18k</strong>
+                    <span>ouro certificado</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero__visual" data-reveal>
+            <div class="hero__portrait">
+                <span class="hero__portrait-frame" aria-hidden="true"></span>
+                <img src="~/images/brand/joao-laumir.png" alt="João Laumir, mascote e fundador da JLM, com óculos escuros e camiseta preta da marca" />
+                <div class="hero__seal">
+                    <svg class="icon"><use href="#i-sparkle"></use></svg>
+                    <span>Assinado<br />por JLM</span>
+                </div>
+            </div>
+            @if (heroProduct is not null)
+            {
+                <a class="hero__product" href="/produto/@heroProduct.Slug">
+                    <img src="@heroProduct.ImageUrl" alt="@heroProduct.Name" />
+                    <div>
+                        <span>Destaque da semana</span>
+                        <strong>@heroProduct.Name</strong>
+                        <em>@heroProduct.Price.ToBrl()</em>
+                    </div>
+                    <svg class="icon"><use href="#i-arrow-up-right"></use></svg>
+                </a>
+            }
+            <div class="hero__tag hero__tag--top">Edição limitada</div>
+            <div class="hero__tag hero__tag--bottom">Acabamento artesanal</div>
+        </div>
+    </div>
+
+    <div class="hero__marquee" aria-hidden="true">
+        <div class="marquee">
+            <div class="marquee__track">
+                <span>Presença</span><span aria-hidden="true">·</span>
+                <span>Alfaiataria</span><span aria-hidden="true">·</span>
+                <span>Ouro 18k</span><span aria-hidden="true">·</span>
+                <span>Couro legítimo</span><span aria-hidden="true">·</span>
+                <span>Edição Laumir</span><span aria-hidden="true">·</span>
+                <span>Presença</span><span aria-hidden="true">·</span>
+                <span>Alfaiataria</span><span aria-hidden="true">·</span>
+                <span>Ouro 18k</span><span aria-hidden="true">·</span>
+                <span>Couro legítimo</span><span aria-hidden="true">·</span>
+                <span>Edição Laumir</span><span aria-hidden="true">·</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--categories">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Universo JLM</span>
+                <h2 class="section-title">Escolha o seu <em>território.</em></h2>
+            </div>
+            <a class="link-arrow" href="/catalogo">Ver catálogo completo <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+
+        <div class="category-grid">
+            @foreach (var category in Model.Categories)
+            {
+                var icon = categoryIcons.TryGetValue(category.Slug, out var value) ? value : "i-sparkle";
+                <a class="category-card" href="/@category.Slug" data-reveal>
+                    <img src="@category.ImageUrl" alt="@category.Name" loading="lazy" />
+                    <span class="category-card__overlay" aria-hidden="true"></span>
+                    <span class="category-card__icon"><svg class="icon"><use href="#@icon"></use></svg></span>
+                    <div class="category-card__body">
+                        <span>@category.Eyebrow</span>
+                        <h3>@category.Name</h3>
+                        <p>@category.Description</p>
+                        <span class="category-card__cta">Explorar <svg class="icon"><use href="#i-arrow-up-right"></use></svg></span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section--featured">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Seleção do fundador</span>
+                <h2 class="section-title">Peças que <em>assinam</em> o look.</h2>
+                <p class="section-sub">Curadoria de João Laumir para quem busca presença sem excesso.</p>
+            </div>
+            <a class="link-arrow" href="/catalogo?ordenar=rating">Ver mais vendidos <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+
+        <div class="product-grid product-grid--four">
+            @foreach (var product in Model.FeaturedProducts.Take(8))
+            {
+                @await Html.PartialAsync("_ProductCard", product)
+            }
+        </div>
+    </div>
+</section>
+
+<section class="manifesto">
+    <div class="container manifesto__inner">
+        <div class="manifesto__visual" data-reveal>
+            <div class="manifesto__frame">
+                <img src="~/images/brand/joao-laumir.png" alt="João Laumir, fundador da JLM" loading="lazy" />
+            </div>
+            <div class="manifesto__card">
+                <span class="eyebrow eyebrow--light">Quem sou</span>
+                <p>“Não desenho roupas. Desenho a primeira impressão que você causa ao entrar.”</p>
+                <strong>João Laumir</strong>
+                <span>Fundador & diretor criativo</span>
+                <a class="link-arrow link-arrow--light" href="/quem-sou">Conheça a história <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+            </div>
+        </div>
+
+        <div class="manifesto__copy">
+            <span class="eyebrow eyebrow--light">A marca</span>
+            <h2>Não vendemos tendência. <em>Construímos permanência.</em></h2>
+            <p>
+                A JLM nasceu em São Paulo com uma ideia simples: homens que impõem presença não
+                seguem o barulho. Eles escolhem melhor. Cada peça passa por curadoria de tecido,
+                modelagem e acabamento antes de receber o monograma dourado.
+            </p>
+            <div class="manifesto__pillars">
+                <div>
+                    <span>01</span>
+                    <h3>Curadoria</h3>
+                    <p>Tecidos nobres, fornecedores auditados e tiragens controladas.</p>
+                </div>
+                <div>
+                    <span>02</span>
+                    <h3>Acabamento</h3>
+                    <p>Costura reforçada, ferragens banhadas e controle peça por peça.</p>
+                </div>
+                <div>
+                    <span>03</span>
+                    <h3>Presença</h3>
+                    <p>Design discreto à primeira vista. Inesquecível ao segundo olhar.</p>
+                </div>
+            </div>
+            <a class="btn btn--gold" href="/quem-sou">Nossa história <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--collections">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Coleções</span>
+                <h2 class="section-title">Quatro formas de <em>ocupar espaço.</em></h2>
+            </div>
+            <a class="link-arrow" href="/colecoes">Todas as coleções <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+
+        <div class="collection-grid">
+            @foreach (var collection in Model.Collections)
+            {
+                <a class="collection-card @(collection == Model.Collections.First() ? "collection-card--wide" : "")" href="/colecoes/@collection.Slug" data-reveal>
+                    <img src="@collection.ImageUrl" alt="@collection.Name" loading="lazy" />
+                    <span class="collection-card__shade" aria-hidden="true"></span>
+                    <div class="collection-card__body">
+                        <span class="eyebrow eyebrow--light">@collection.Tagline</span>
+                        <h3>@collection.Name</h3>
+                        <span class="collection-card__link">Explorar coleção <svg class="icon"><use href="#i-arrow-up-right"></use></svg></span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section section--new">
+    <div class="container">
+        <div class="section-head">
+            <div>
+                <span class="eyebrow">Chegou agora</span>
+                <h2 class="section-title">Novidades <em>assinadas.</em></h2>
+            </div>
+            <a class="link-arrow" href="/catalogo?ordenar=newest">Ver todas as novidades <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+        <div class="product-grid product-grid--four">
+            @foreach (var product in Model.NewArrivals)
+            {
+                @await Html.PartialAsync("_ProductCard", product)
+            }
+        </div>
+    </div>
+</section>
+
+<section class="services-band">
+    <div class="container services-band__inner">
+        <article>
+            <svg class="icon"><use href="#i-truck"></use></svg>
+            <div><h3>Frete grátis</h3><p>Em compras acima de R$ 500 para todo o Brasil.</p></div>
+        </article>
+        <article>
+            <svg class="icon"><use href="#i-refresh"></use></svg>
+            <div><h3>Troca sem atrito</h3><p>Até 30 dias para trocar ou devolver sua peça.</p></div>
+        </article>
+        <article>
+            <svg class="icon"><use href="#i-shield"></use></svg>
+            <div><h3>Compra segura</h3><p>Pagamento protegido e dados criptografados.</p></div>
+        </article>
+        <article>
+            <svg class="icon"><use href="#i-card"></use></svg>
+            <div><h3>Até 6x sem juros</h3><p>Ou 5% de desconto no Pix à vista.</p></div>
+        </article>
+    </div>
+</section>
+
+<section class="editorial">
+    <div class="container editorial__inner">
+        <div class="editorial__copy">
+            <span class="eyebrow">Editorial</span>
+            <h2>O detalhe dourado que ninguém esquece.</h2>
+            <p>
+                A joalheria JLM é produzida em ouro 18k e prata 925, com certificado de
+                autenticidade e acabamento manual. Peças para usar todos os dias — e para
+                atravessar gerações.
+            </p>
+            <a class="btn btn--dark" href="/joias">Explorar joias <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+        </div>
+        <div class="editorial__grid">
+            <a href="/joias" class="editorial__tile editorial__tile--large">
+                <img src="~/images/products/corrente-cubana-ouro-18k.svg" alt="Corrente cubana em ouro 18k" loading="lazy" />
+                <span>Correntes</span>
+            </a>
+            <a href="/joias" class="editorial__tile">
+                <img src="~/images/products/anel-signature-onyx.svg" alt="Anel Signature Onyx" loading="lazy" />
+                <span>Anéis</span>
+            </a>
+            <a href="/joias" class="editorial__tile">
+                <img src="~/images/products/pulseira-elos-cubanos.svg" alt="Pulseira de elos cubanos" loading="lazy" />
+                <span>Pulseiras</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials">
+    <div class="container">
+        <div class="section-head section-head--center">
+            <div>
+                <span class="eyebrow">Quem veste, assina</span>
+                <h2 class="section-title">Presença <em>comprovada.</em></h2>
+            </div>
+        </div>
+        <div class="testimonial-grid">
+            <blockquote>
+                <div class="stars" aria-label="5 de 5 estrelas">
+                    @for (var i = 0; i < 5; i++)
+                    {
+                        <svg class="icon"><use href="#i-star"></use></svg>
+                    }
+                </div>
+                <p>“A alfaiataria da JLM tem um caimento que não encontro em nenhuma outra marca nacional. Parece feita sob medida.”</p>
+                <footer><strong>Rafael M.</strong><span>São Paulo · Cliente desde 2025</span></footer>
+            </blockquote>
+            <blockquote>
+                <div class="stars" aria-label="5 de 5 estrelas">
+                    @for (var i = 0; i < 5; i++)
+                    {
+                        <svg class="icon"><use href="#i-star"></use></svg>
+                    }
+                </div>
+                <p>“Comprei a corrente cubana e o acabamento é impecável. O estojo e o certificado fazem toda a diferença.”</p>
+                <footer><strong>Bruno A.</strong><span>Curitiba · Cliente desde 2024</span></footer>
+            </blockquote>
+            <blockquote>
+                <div class="stars" aria-label="5 de 5 estrelas">
+                    @for (var i = 0; i < 5; i++)
+                    {
+                        <svg class="icon"><use href="#i-star"></use></svg>
+                    }
+                </div>
+                <p>“Atendimento direto, embalagem premium e entrega antes do prazo. A experiência é tão boa quanto a peça.”</p>
+                <footer><strong>Diego L.</strong><span>Belo Horizonte · Cliente desde 2025</span></footer>
+            </blockquote>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,86 @@
+@model Category
+@{
+    var isEdit = Model.Id > 0;
+}
+
+<form class="admin-form" asp-area="Admin" asp-controller="Categories" asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+    <div class="admin-form__layout">
+        <div class="admin-form__main">
+            <section class="admin-card">
+                <div class="admin-card__head">
+                    <div>
+                        <span class="admin-eyebrow">Identificação</span>
+                        <h3>Dados da categoria</h3>
+                    </div>
+                </div>
+                <div class="admin-fields">
+                    <div class="admin-field">
+                        <label asp-for="Name">Nome <span>*</span></label>
+                        <input asp-for="Name" placeholder="Ex.: Roupas" data-slug-source />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+                    <div class="admin-field">
+                        <label asp-for="Slug">Slug (URL) <span>*</span></label>
+                        <div class="admin-input-prefix">
+                            <span>/</span>
+                            <input asp-for="Slug" placeholder="roupas" data-slug-target />
+                        </div>
+                        <span asp-validation-for="Slug" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Eyebrow">Sobretítulo</label>
+                        <input asp-for="Eyebrow" placeholder="Ex.: Vestuário JLM" />
+                        <span asp-validation-for="Eyebrow" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Description">Descrição</label>
+                        <textarea asp-for="Description" rows="4" placeholder="Texto exibido no card da categoria e na página da coleção."></textarea>
+                        <span asp-validation-for="Description" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="ImageUrl">Imagem da categoria</label>
+                        <input asp-for="ImageUrl" placeholder="/images/products/moletom-oversized-presenca.svg" />
+                        <span asp-validation-for="ImageUrl" class="field-error"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="admin-form__side">
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Publicação</h3></div>
+                <div class="admin-field">
+                    <label asp-for="SortOrder">Ordem de exibição</label>
+                    <input asp-for="SortOrder" type="number" min="0" />
+                    <span asp-validation-for="SortOrder" class="field-error"></span>
+                </div>
+                <div class="admin-checks">
+                    <label class="admin-check">
+                        <input asp-for="IsActive" />
+                        <span><strong>Ativa</strong><small>Exibe a categoria no menu e na loja.</small></span>
+                    </label>
+                </div>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+            {
+                <section class="admin-card">
+                    <div class="admin-card__head"><h3>Prévia</h3></div>
+                    <img class="admin-side-preview" src="@Model.ImageUrl" alt="@Model.Name" />
+                </section>
+            }
+        </aside>
+    </div>
+
+    <div class="admin-form__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/categories">Cancelar</a>
+        <button class="admin-btn admin-btn--gold" type="submit">
+            <svg class="icon"><use href="#i-check"></use></svg> @(isEdit ? "Salvar alterações" : "Criar categoria")
+        </button>
+    </div>
+</form>

@@ -1,0 +1,90 @@
+@model Collection
+@{
+    var isEdit = Model.Id > 0;
+}
+
+<form class="admin-form" asp-area="Admin" asp-controller="Collections" asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+    <div class="admin-form__layout">
+        <div class="admin-form__main">
+            <section class="admin-card">
+                <div class="admin-card__head">
+                    <div>
+                        <span class="admin-eyebrow">Identidade</span>
+                        <h3>Dados da coleção</h3>
+                    </div>
+                </div>
+                <div class="admin-fields">
+                    <div class="admin-field">
+                        <label asp-for="Name">Nome <span>*</span></label>
+                        <input asp-for="Name" placeholder="Ex.: Edição Laumir" data-slug-source />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+                    <div class="admin-field">
+                        <label asp-for="Slug">Slug (URL) <span>*</span></label>
+                        <div class="admin-input-prefix">
+                            <span>/colecoes/</span>
+                            <input asp-for="Slug" placeholder="edicao-laumir" data-slug-target />
+                        </div>
+                        <span asp-validation-for="Slug" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Tagline">Assinatura curta</label>
+                        <input asp-for="Tagline" placeholder="Ex.: Tiragem limitada e assinada" />
+                        <span asp-validation-for="Tagline" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Description">Descrição</label>
+                        <textarea asp-for="Description" rows="6" placeholder="Conte a atmosfera da coleção, materiais e intenção."></textarea>
+                        <span asp-validation-for="Description" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="ImageUrl">Imagem de capa</label>
+                        <input asp-for="ImageUrl" placeholder="/images/products/blazer-premium-gold-line.svg" />
+                        <span asp-validation-for="ImageUrl" class="field-error"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="admin-form__side">
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Publicação</h3></div>
+                <div class="admin-field">
+                    <label asp-for="SortOrder">Ordem de exibição</label>
+                    <input asp-for="SortOrder" type="number" min="0" />
+                    <span asp-validation-for="SortOrder" class="field-error"></span>
+                </div>
+                <div class="admin-checks">
+                    <label class="admin-check">
+                        <input asp-for="IsActive" />
+                        <span><strong>Ativa</strong><small>Visível no site e no catálogo.</small></span>
+                    </label>
+                    <label class="admin-check">
+                        <input asp-for="IsFeatured" />
+                        <span><strong>Destaque</strong><small>Priorizada na home e nas coleções.</small></span>
+                    </label>
+                </div>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+            {
+                <section class="admin-card">
+                    <div class="admin-card__head"><h3>Prévia</h3></div>
+                    <img class="admin-side-preview" src="@Model.ImageUrl" alt="@Model.Name" />
+                </section>
+            }
+        </aside>
+    </div>
+
+    <div class="admin-form__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/collections">Cancelar</a>
+        <button class="admin-btn admin-btn--gold" type="submit">
+            <svg class="icon"><use href="#i-check"></use></svg> @(isEdit ? "Salvar alterações" : "Criar coleção")
+        </button>
+    </div>
+</form>

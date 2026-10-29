@@ -1,0 +1,217 @@
+@model ProductFormViewModel
+@{
+    var action = Model.IsEdit ? "Edit" : "Create";
+}
+
+<form class="admin-form" asp-area="Admin" asp-controller="Products" asp-action="@action" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+    <div class="admin-form__layout">
+        <div class="admin-form__main">
+            <section class="admin-card">
+                <div class="admin-card__head">
+                    <div>
+                        <span class="admin-eyebrow">Identificação</span>
+                        <h3>Informações da peça</h3>
+                    </div>
+                </div>
+
+                <div class="admin-fields">
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Name">Nome do produto <span>*</span></label>
+                        <input asp-for="Name" placeholder="Ex.: Blazer Premium Gold Line" data-slug-source />
+                        <span asp-validation-for="Name" class="field-error"></span>
+                    </div>
+
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Slug">Slug (URL)</label>
+                        <div class="admin-input-prefix">
+                            <span>/produto/</span>
+                            <input asp-for="Slug" placeholder="blazer-premium-gold-line" data-slug-target />
+                        </div>
+                        <span class="admin-hint">Deixe em branco para gerar automaticamente a partir do nome.</span>
+                        <span asp-validation-for="Slug" class="field-error"></span>
+                    </div>
+
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="ShortDescription">Descrição curta <span>*</span></label>
+                        <input asp-for="ShortDescription" maxlength="300" placeholder="Resumo que aparece nos cards e buscas" />
+                        <span asp-validation-for="ShortDescription" class="field-error"></span>
+                    </div>
+
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Description">Descrição completa <span>*</span></label>
+                        <textarea asp-for="Description" rows="7" placeholder="Conte a história da peça, caimento, detalhes..."></textarea>
+                        <span asp-validation-for="Description" class="field-error"></span>
+                    </div>
+
+                    <div class="admin-field">
+                        <label asp-for="Composition">Composição & medidas</label>
+                        <textarea asp-for="Composition" rows="3" placeholder="Ex.: 98% algodão, 2% elastano"></textarea>
+                        <span asp-validation-for="Composition" class="field-error"></span>
+                    </div>
+
+                    <div class="admin-field">
+                        <label asp-for="CareInstructions">Cuidados</label>
+                        <textarea asp-for="CareInstructions" rows="3" placeholder="Lavar à mão, não usar alvejante..."></textarea>
+                        <span asp-validation-for="CareInstructions" class="field-error"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="admin-card">
+                <div class="admin-card__head">
+                    <div>
+                        <span class="admin-eyebrow">Mídia</span>
+                        <h3>Imagem principal & galeria</h3>
+                    </div>
+                </div>
+
+                <div class="admin-media">
+                    <div class="admin-media__preview">
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="Prévia da imagem principal" data-image-preview />
+                        }
+                        else
+                        {
+                            <div class="admin-media__placeholder" data-image-placeholder>
+                                <svg class="icon"><use href="#i-box"></use></svg>
+                                <span>Sem imagem</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="admin-media__fields">
+                        <div class="admin-field">
+                            <label asp-for="MainImageFile">Enviar nova imagem</label>
+                            <input asp-for="MainImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-image-input />
+                            <span class="admin-hint">JPG, PNG, WEBP ou SVG · até 5 MB.</span>
+                            <span asp-validation-for="MainImageFile" class="field-error"></span>
+                        </div>
+                        <div class="admin-field">
+                            <label asp-for="ImageUrl">ou URL da imagem</label>
+                            <input asp-for="ImageUrl" placeholder="/images/products/minha-peca.svg" data-image-url />
+                            <span asp-validation-for="ImageUrl" class="field-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-field admin-field--full">
+                    <label asp-for="GalleryUrls">Galeria (uma URL por linha)</label>
+                    <textarea asp-for="GalleryUrls" rows="4" placeholder="/images/products/peca-detail.svg"></textarea>
+                    <span class="admin-hint">A imagem principal é adicionada automaticamente à galeria.</span>
+                    <span asp-validation-for="GalleryUrls" class="field-error"></span>
+                </div>
+            </section>
+        </div>
+
+        <aside class="admin-form__side">
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Preço & estoque</h3></div>
+                <div class="admin-field">
+                    <label asp-for="Price">Preço (R$) <span>*</span></label>
+                    <input asp-for="Price" type="number" step="0.01" min="0" placeholder="0,00" />
+                    <span asp-validation-for="Price" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="ComparePrice">Preço comparativo</label>
+                    <input asp-for="ComparePrice" type="number" step="0.01" min="0" placeholder="Preço riscado" />
+                    <span asp-validation-for="ComparePrice" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="Sku">SKU <span>*</span></label>
+                    <input asp-for="Sku" placeholder="JLM-001" />
+                    <span asp-validation-for="Sku" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="Stock">Estoque <span>*</span></label>
+                    <input asp-for="Stock" type="number" min="0" />
+                    <span asp-validation-for="Stock" class="field-error"></span>
+                </div>
+            </section>
+
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Organização</h3></div>
+                <div class="admin-field">
+                    <label asp-for="CategoryId">Categoria <span>*</span></label>
+                    <div class="admin-select">
+                        <select asp-for="CategoryId" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+                            <option value="">Selecione</option>
+                        </select>
+                        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                    </div>
+                    <span asp-validation-for="CategoryId" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="CollectionId">Coleção</label>
+                    <div class="admin-select">
+                        <select asp-for="CollectionId" asp-items="@(new SelectList(Model.Collections, "Id", "Name"))">
+                            <option value="">Sem coleção</option>
+                        </select>
+                        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                    </div>
+                    <span asp-validation-for="CollectionId" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="Sizes">Tamanhos <span>*</span></label>
+                    <input asp-for="Sizes" placeholder="P,M,G,GG" />
+                    <span class="admin-hint">Separe por vírgula. Use Único para peças sem variação.</span>
+                    <span asp-validation-for="Sizes" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="Colors">Cores <span>*</span></label>
+                    <input asp-for="Colors" placeholder="Preto:#101010,Dourado:#C9A45C" />
+                    <span class="admin-hint">Formato: Nome:#hex, separados por vírgula.</span>
+                    <span asp-validation-for="Colors" class="field-error"></span>
+                </div>
+            </section>
+
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Vitrine</h3></div>
+                <div class="admin-checks">
+                    <label class="admin-check">
+                        <input asp-for="IsActive" />
+                        <span><strong>Ativo na loja</strong><small>Visível para todos os clientes.</small></span>
+                    </label>
+                    <label class="admin-check">
+                        <input asp-for="IsFeatured" />
+                        <span><strong>Destaque</strong><small>Aparece na home e na seleção do fundador.</small></span>
+                    </label>
+                    <label class="admin-check">
+                        <input asp-for="IsNewArrival" />
+                        <span><strong>Lançamento</strong><small>Selo "Novo" nos cards.</small></span>
+                    </label>
+                    <label class="admin-check">
+                        <input asp-for="IsBestSeller" />
+                        <span><strong>Mais vendido</strong><small>Selo de prova social.</small></span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Avaliação</h3></div>
+                <div class="admin-field">
+                    <label asp-for="Rating">Nota (0 a 5)</label>
+                    <input asp-for="Rating" type="number" step="0.1" min="0" max="5" />
+                    <span asp-validation-for="Rating" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="ReviewCount">Quantidade de avaliações</label>
+                    <input asp-for="ReviewCount" type="number" min="0" />
+                    <span asp-validation-for="ReviewCount" class="field-error"></span>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <div class="admin-form__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/products">Cancelar</a>
+        <button class="admin-btn admin-btn--gold" type="submit">
+            <svg class="icon"><use href="#i-check"></use></svg>
+            @(Model.IsEdit ? "Salvar alterações" : "Criar produto")
+        </button>
+    </div>
+</form>

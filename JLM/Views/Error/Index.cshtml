@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Página não encontrada";
+    ViewData["Description"] = "A página que você procura não existe ou foi movida.";
+    ViewData["BodyClass"] = "page-error";
+    var code = ViewBag.StatusCode as int? ?? 404;
+    var message = ViewBag.Message as string ?? "Algo saiu do eixo. Estamos ajustando os detalhes.";
+}
+
+<section class="error-page">
+    <div class="container error-page__inner">
+        <div class="error-page__copy">
+            <span class="eyebrow">Erro @code</span>
+            <p class="error-page__code">@code</p>
+            <h1>@(code == 404 ? "Essa peça saiu de linha." : "Algo saiu do eixo.")</h1>
+            <p class="error-page__message">@message</p>
+            <p>Mas presença não se perde. Volte ao início ou explore a coleção — o João guardou algo para você.</p>
+            <div class="error-page__actions">
+                <a class="btn btn--gold" href="/">Voltar ao início <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                <a class="btn btn--ghost" href="/catalogo">Ver coleção</a>
+            </div>
+            <div class="error-page__links">
+                <span>Atalhos:</span>
+                <a href="/roupas">Roupas</a>
+                <a href="/joias">Joias</a>
+                <a href="/acessorios">Acessórios</a>
+                <a href="/contato">Contato</a>
+            </div>
+        </div>
+        <div class="error-page__visual">
+            <img src="~/images/brand/joao-laumir.png" alt="João Laumir" />
+            <div class="error-page__bubble">“Isso não é nada que uma boa escolha não resolva.”</div>
+        </div>
+    </div>
+</section>

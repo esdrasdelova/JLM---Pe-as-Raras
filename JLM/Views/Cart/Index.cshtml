@@ -1,0 +1,233 @@
+@model CartViewModel
+@{
+    ViewData["Title"] = "Carrinho";
+    ViewData["Description"] = "Revise as peças selecionadas e finalize sua compra na JLM.";
+    ViewData["BodyClass"] = "page-cart";
+    var progress = Model.Subtotal <= 0 ? 0 : Math.Min(100, (int)Math.Round(Model.Subtotal / Model.FreeShippingThreshold * 100));
+}
+
+<section class="page-intro">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><span aria-current="page">Carrinho</span>
+            </nav>
+            <span class="eyebrow">Sua seleção</span>
+            <h1>Carrinho <em>(@Model.ItemCount)</em></h1>
+        </div>
+        <div class="cart-steps" aria-label="Etapas da compra">
+            <span class="is-active"><em>1</em> Carrinho</span>
+            <span><em>2</em> Entrega</span>
+            <span><em>3</em> Pagamento</span>
+        </div>
+    </div>
+</section>
+
+@if (Model.IsEmpty)
+{
+    <section class="section cart-empty">
+        <div class="container">
+            <div class="empty-state empty-state--cart">
+                <div class="empty-state__mascot empty-state__mascot--large">
+                    <img src="~/images/brand/joao-laumir.png" alt="João Laumir, mascote da JLM" />
+                </div>
+                <span class="eyebrow">Carrinho vazio</span>
+                <h2>O João notou que você ainda não escolheu.</h2>
+                <p>Presença começa com uma decisão. Explore a curadoria da JLM e encontre a peça que fala por você.</p>
+                <div class="empty-state__actions">
+                    <a class="btn btn--gold" href="/catalogo">Explorar coleção <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                    <a class="btn btn--ghost" href="/favoritos">Ver favoritos</a>
+                </div>
+                <div class="empty-state__suggestions">
+                    <span>Comece por aqui:</span>
+                    <a href="/roupas">Roupas</a>
+                    <a href="/joias">Joias</a>
+                    <a href="/acessorios">Acessórios</a>
+                    <a href="/colecoes/edicao-laumir">Edição Laumir</a>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <section class="section cart">
+        <div class="container">
+            <div class="shipping-progress @(Model.RemainingForFreeShipping <= 0 ? "is-complete" : "")">
+                <div class="shipping-progress__text">
+                    @if (Model.RemainingForFreeShipping <= 0)
+                    {
+                        <p><svg class="icon"><use href="#i-truck"></use></svg> <strong>Frete grátis garantido.</strong> Sua seleção já passou de @Model.FreeShippingThreshold.ToBrl().</p>
+                    }
+                    else
+                    {
+                        <p><svg class="icon"><use href="#i-truck"></use></svg> Faltam <strong>@Model.RemainingForFreeShipping.ToBrl()</strong> para o frete grátis.</p>
+                    }
+                    <span>@progress%</span>
+                </div>
+                <div class="shipping-progress__bar"><span style="width:@progress%"></span></div>
+                <div class="shipping-progress__marks"><span>R$ 0</span><span>@Model.FreeShippingThreshold.ToBrl()</span></div>
+            </div>
+
+            <div class="cart__layout">
+                <div class="cart__items">
+                    <div class="cart__head">
+                        <h2>Peças selecionadas</h2>
+                        <form action="/carrinho/limpar" method="post" data-confirm="Remover todas as peças do carrinho?">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="link-danger"><svg class="icon"><use href="#i-trash"></use></svg> Limpar carrinho</button>
+                        </form>
+                    </div>
+
+                    @foreach (var line in Model.Items)
+                    {
+                        <article class="cart-item">
+                            <a class="cart-item__media" href="/produto/@line.Product.Slug">
+                                <img src="@line.Product.ImageUrl" alt="@line.Product.Name" />
+                            </a>
+                            <div class="cart-item__body">
+                                <span class="cart-item__eyebrow">@line.Product.Category?.Name</span>
+                                <h3><a href="/produto/@line.Product.Slug">@line.Product.Name</a></h3>
+                                <div class="cart-item__options">
+                                    @if (!string.IsNullOrWhiteSpace(line.Size))
+                                    {
+                                        <span>Tamanho: <strong>@line.Size</strong></span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(line.Color))
+                                    {
+                                        <span>Cor: <strong>@line.Color</strong></span>
+                                    }
+                                    <span>SKU: @line.Product.Sku</span>
+                                </div>
+                                <div class="cart-item__stock">
+                                    <svg class="icon"><use href="#i-check"></use></svg> Em estoque · envio em 24h
+                                </div>
+                                <div class="cart-item__actions">
+                                    <form action="/carrinho/atualizar" method="post" class="quantity quantity--sm" data-quantity-form>
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="key" value="@line.Key" />
+                                        <button type="button" data-quantity-minus aria-label="Diminuir quantidade de @line.Product.Name">
+                                            <svg class="icon"><use href="#i-minus"></use></svg>
+                                        </button>
+                                        <input type="number" name="quantity" value="@line.Quantity" min="1" max="@Math.Max(1, line.AvailableStock)" data-quantity-input aria-label="Quantidade" />
+                                        <button type="button" data-quantity-plus aria-label="Aumentar quantidade de @line.Product.Name">
+                                            <svg class="icon"><use href="#i-plus"></use></svg>
+                                        </button>
+                                    </form>
+                                    <form action="/carrinho/remover" method="post" data-confirm="Remover @line.Product.Name do carrinho?">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="key" value="@line.Key" />
+                                        <button type="submit" class="link-danger"><svg class="icon"><use href="#i-trash"></use></svg> Remover</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="cart-item__price">
+                                <strong>@line.LineTotal.ToBrl()</strong>
+                                <span>@line.Quantity × @line.UnitPrice.ToBrl()</span>
+                            </div>
+                        </article>
+                    }
+
+                    <div class="cart__continue">
+                        <a class="link-arrow" href="/catalogo"><svg class="icon"><use href="#i-arrow-left"></use></svg> Continuar comprando</a>
+                        <span><svg class="icon"><use href="#i-shield"></use></svg> Ambiente seguro</span>
+                    </div>
+                </div>
+
+                <aside class="cart-summary">
+                    <div class="cart-summary__head">
+                        <span class="eyebrow">Resumo</span>
+                        <h2>Total do pedido</h2>
+                    </div>
+
+                    <div class="cart-summary__coupon">
+                        @if (Model.Coupon is not null)
+                        {
+                            <div class="coupon-applied">
+                                <div>
+                                    <svg class="icon"><use href="#i-ticket"></use></svg>
+                                    <div><strong>@Model.Coupon.Code</strong><span>@Model.Coupon.Description</span></div>
+                                </div>
+                                <form action="/carrinho/cupom/remover" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="returnUrl" value="/carrinho" />
+                                    <button type="submit" aria-label="Remover cupom"><svg class="icon"><use href="#i-close"></use></svg></button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <form action="/carrinho/cupom" method="post" class="coupon-form">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="returnUrl" value="/carrinho" />
+                                <label for="coupon">Cupom de desconto</label>
+                                <div>
+                                    <input id="coupon" type="text" name="code" placeholder="Digite seu cupom" value="@Model.CouponCode" autocomplete="off" />
+                                    <button type="submit" class="btn btn--dark">Aplicar</button>
+                                </div>
+                            </form>
+                            @if (!string.IsNullOrWhiteSpace(Model.CouponError))
+                            {
+                                <p class="form-error">@Model.CouponError</p>
+                            }
+                        }
+                    </div>
+
+                    <dl class="summary-lines">
+                        <div><dt>Subtotal</dt><dd>@Model.Subtotal.ToBrl()</dd></div>
+                        <div>
+                            <dt>Frete</dt>
+                            <dd>@(Model.ShippingEstimate == 0 ? "Grátis" : Model.ShippingEstimate.ToBrl())</dd>
+                        </div>
+                        @if (Model.Discount > 0)
+                        {
+                            <div class="summary-lines__discount"><dt>Desconto</dt><dd>− @Model.Discount.ToBrl()</dd></div>
+                        }
+                        <div class="summary-lines__total">
+                            <dt>Total</dt>
+                            <dd>@Model.Total.ToBrl()</dd>
+                        </div>
+                    </dl>
+
+                    <p class="summary-installments">ou <strong>@Model.Total.Installments(6)</strong></p>
+
+                    <a class="btn btn--gold btn--block btn--lg" href="/checkout">
+                        Finalizar compra <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </a>
+
+                    <div class="summary-trust">
+                        <div><svg class="icon"><use href="#i-lock"></use></svg><span>Pagamento<br /><strong>100% seguro</strong></span></div>
+                        <div><svg class="icon"><use href="#i-refresh"></use></svg><span>Troca fácil<br /><strong>em 30 dias</strong></span></div>
+                        <div><svg class="icon"><use href="#i-truck"></use></svg><span>Envio<br /><strong>para todo Brasil</strong></span></div>
+                    </div>
+
+                    <div class="summary-payments">
+                        <span>PIX</span><span>VISA</span><span>MASTER</span><span>ELO</span><span>BOLETO</span>
+                    </div>
+
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <p class="summary-login">Já é cliente? <a href="/conta/entrar?returnUrl=%2Fcheckout">Entrar para finalizar mais rápido</a></p>
+                    }
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section--suggestions">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <span class="eyebrow">Combina com você</span>
+                    <h2 class="section-title">Feche o <em>look.</em></h2>
+                </div>
+                <a class="link-arrow" href="/catalogo">Ver catálogo <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+            </div>
+            <div class="suggestion-grid">
+                <a href="/joias"><img src="~/images/products/corrente-cubana-ouro-18k.svg" alt="Joias JLM" loading="lazy" /><span>Joias</span></a>
+                <a href="/acessorios"><img src="~/images/products/relogio-chrono-noir.svg" alt="Acessórios JLM" loading="lazy" /><span>Acessórios</span></a>
+                <a href="/colecoes/edicao-laumir"><img src="~/images/products/blazer-premium-gold-line.svg" alt="Edição Laumir" loading="lazy" /><span>Edição Laumir</span></a>
+            </div>
+        </div>
+    </section>
+}

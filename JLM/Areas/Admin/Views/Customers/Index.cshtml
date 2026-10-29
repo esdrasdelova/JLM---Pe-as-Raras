@@ -1,0 +1,112 @@
+@model AdminCustomersViewModel
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Relacionamento</span>
+        <h2>Clientes</h2>
+        <p>@Model.TotalCount @(Model.TotalCount == 1 ? "cliente cadastrado" : "clientes cadastrados"). Histórico, contato e status de acesso.</p>
+    </div>
+    <a class="admin-btn admin-btn--ghost" href="/admin/newsletter">
+        <svg class="icon"><use href="#i-send"></use></svg> Lista de e-mails
+    </a>
+</div>
+
+<form class="admin-filterbar" method="get" action="/admin/customers">
+    <div class="admin-search">
+        <svg class="icon"><use href="#i-search"></use></svg>
+        <input type="search" name="q" value="@Model.Search" placeholder="Buscar por nome ou e-mail" aria-label="Buscar clientes" />
+    </div>
+    <button class="admin-btn admin-btn--dark" type="submit"><svg class="icon"><use href="#i-search"></use></svg> Buscar</button>
+    @if (!string.IsNullOrWhiteSpace(Model.Search))
+    {
+        <a class="admin-filterbar__clear" href="/admin/customers">Limpar</a>
+    }
+</form>
+
+<section class="admin-card admin-card--flush">
+    @if (Model.Customers.Count == 0)
+    {
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-users"></use></svg>
+            <h3>Nenhum cliente encontrado</h3>
+            <p>Quando novos clientes se cadastrarem, eles aparecerão aqui.</p>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Contato</th>
+                        <th>Pedidos</th>
+                        <th>Total investido</th>
+                        <th>Cadastro</th>
+                        <th>Status</th>
+                        <th class="admin-table__right"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var customer in Model.Customers)
+                    {
+                        var validOrders = customer.Orders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
+                        <tr>
+                            <td>
+                                <div class="table-person">
+                                    <span class="table-avatar">@customer.FullName.Initials()</span>
+                                    <div>
+                                        <a class="admin-table__strong" href="/admin/customers/details/@customer.Id">@customer.FullName</a>
+                                        <span>@(string.IsNullOrWhiteSpace(customer.City) ? "Cidade não informada" : $"{customer.City}/{customer.State}")</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="table-muted">@customer.Email</span>
+                                @if (!string.IsNullOrWhiteSpace(customer.Phone))
+                                {
+                                    <span class="table-sub">@customer.Phone</span>
+                                }
+                            </td>
+                            <td class="admin-table__num">@validOrders.Count</td>
+                            <td class="admin-table__num"><strong>@validOrders.Sum(o => o.Total).ToBrl()</strong></td>
+                            <td>@customer.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="admin-status @(customer.IsActive ? "admin-status--ok" : "admin-status--off")"><i></i>@(customer.IsActive ? "Ativo" : "Inativo")</span>
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="admin-icon-btn" href="/admin/customers/details/@customer.Id" title="Ver cliente" aria-label="Ver cliente">
+                                        <svg class="icon"><use href="#i-eye"></use></svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="admin-pagination" aria-label="Paginação de clientes">
+                <span>Página @Model.Page de @Model.TotalPages</span>
+                <div>
+                    <a class="admin-icon-btn @(Model.Page <= 1 ? "is-disabled" : "")" href="@(Model.Page <= 1 ? "#" : $"/admin/customers?q={Uri.EscapeDataString(Model.Search ?? "")}&page={Model.Page - 1}")" aria-label="Anterior">
+                        <svg class="icon"><use href="#i-arrow-left"></use></svg>
+                    </a>
+                    @for (var i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Math.Max(1, Model.Page - 2) + 4); i++)
+                    {
+                        <a class="admin-page @(i == Model.Page ? "is-active" : "")" href="/admin/customers?q=@Uri.EscapeDataString(Model.Search ?? "")&page=@i">@i</a>
+                    }
+                    <a class="admin-icon-btn @(Model.Page >= Model.TotalPages ? "is-disabled" : "")" href="@(Model.Page >= Model.TotalPages ? "#" : $"/admin/customers?q={Uri.EscapeDataString(Model.Search ?? "")}&page={Model.Page + 1}")" aria-label="Próxima">
+                        <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </a>
+                </div>
+            </nav>
+        }
+    }
+</section>

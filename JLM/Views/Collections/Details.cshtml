@@ -1,0 +1,123 @@
+@model CatalogViewModel
+@{
+    var collection = ViewBag.Collection as Collection;
+    var description = ViewBag.CollectionDescription as string;
+    ViewData["Title"] = collection?.Name ?? "Coleção";
+    ViewData["Description"] = description ?? "Coleção JLM.";
+    ViewData["BodyClass"] = "page-collection";
+
+    var sortOptions = new (string Value, string Label)[]
+    {
+        ("relevance", "Curadoria JLM"),
+        ("newest", "Lançamentos"),
+        ("price-asc", "Menor preço"),
+        ("price-desc", "Maior preço"),
+        ("rating", "Melhor avaliados"),
+        ("name", "A–Z")
+    };
+}
+
+<section class="collection-hero">
+    <div class="collection-hero__media">
+        <img src="@(collection?.ImageUrl ?? Model.HeroImage ?? "/images/products/blazer-premium-gold-line.svg")" alt="" aria-hidden="true" />
+        <span class="collection-hero__shade" aria-hidden="true"></span>
+    </div>
+    <div class="container collection-hero__inner">
+        <nav class="breadcrumbs" aria-label="Trilha de navegação">
+            <a href="/">Início</a><span>/</span><a href="/colecoes">Coleções</a><span>/</span><span aria-current="page">@collection?.Name</span>
+        </nav>
+        <span class="eyebrow eyebrow--light">@collection?.Tagline</span>
+        <h1>@collection?.Name</h1>
+        <p>@description</p>
+        <div class="collection-hero__meta">
+            <span><strong>@Model.TotalCount</strong> peças</span>
+            <span>Tiragem limitada</span>
+            <span>Assinada por JLM</span>
+        </div>
+    </div>
+</section>
+
+<section class="catalog">
+    <div class="container">
+        <div class="catalog__toolbar">
+            <button class="btn btn--filter" type="button" data-filters-toggle aria-expanded="false" aria-controls="catalog-filters">
+                <svg class="icon"><use href="#i-filter"></use></svg> Filtrar
+            </button>
+            <div class="catalog__quick-links">
+                <a class="is-active" href="/colecoes/@collection?.Slug">@collection?.Name</a>
+                <a href="/colecoes">Todas as coleções</a>
+            </div>
+            <form class="catalog__sort" method="get" action="/colecoes/@collection?.Slug" data-sort-form>
+                <label for="sort">Ordenar por</label>
+                <div class="select-wrap">
+                    <select id="sort" name="ordenar" data-auto-submit>
+                        @foreach (var option in sortOptions)
+                        {
+                            <option value="@option.Value" selected="@(Model.Sort == option.Value)">@option.Label</option>
+                        }
+                    </select>
+                    <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                </div>
+            </form>
+        </div>
+
+        <div class="catalog__layout">
+            <aside class="catalog-filters" id="catalog-filters" data-filters-panel>
+                <div class="catalog-filters__head">
+                    <h2>Refinar</h2>
+                    <button class="icon-btn" type="button" data-filters-close aria-label="Fechar filtros"><svg class="icon"><use href="#i-close"></use></svg></button>
+                </div>
+                <form method="get" action="/colecoes/@collection?.Slug" class="filter-form">
+                    <div class="filter-group">
+                        <h3>Faixa de preço</h3>
+                        <div class="price-range">
+                            <label><span>De</span><input type="number" name="precoMin" min="0" step="10" value="@Model.MinPrice" placeholder="0" /></label>
+                            <span class="price-range__dash">—</span>
+                            <label><span>Até</span><input type="number" name="precoMax" min="0" step="10" value="@Model.MaxPrice" placeholder="5000" /></label>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <h3>Tamanho</h3>
+                        <div class="size-filter">
+                            @foreach (var size in Model.AvailableSizes)
+                            {
+                                <label class="size-filter__option">
+                                    <input type="radio" name="tamanho" value="@size" checked="@(Model.Size == size)" />
+                                    <span>@size</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <input type="hidden" name="ordenar" value="@Model.Sort" />
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn--gold btn--block">Aplicar filtros</button>
+                        <a class="btn btn--ghost btn--block" href="/colecoes/@collection?.Slug">Limpar</a>
+                    </div>
+                </form>
+            </aside>
+
+            <div class="catalog__results">
+                @if (Model.Products.Count == 0)
+                {
+                    <div class="empty-state">
+                        <div class="empty-state__mascot"><img src="~/images/brand/joao-laumir.png" alt="João Laumir" /></div>
+                        <span class="eyebrow">Em produção</span>
+                        <h2>Esta coleção está sendo finalizada.</h2>
+                        <p>As peças chegam em breve. Inscreva-se na lista privada para ser avisado primeiro.</p>
+                        <a class="btn btn--gold" href="/catalogo">Ver outras peças</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="product-grid product-grid--three">
+                        @foreach (var product in Model.Products)
+                        {
+                            @await Html.PartialAsync("_ProductCard", product)
+                        }
+                    </div>
+                    @await Html.PartialAsync("_Pagination", new PaginationViewModel { Page = Model.Page, TotalPages = Model.TotalPages })
+                }
+            </div>
+        </div>
+    </div>
+</section>

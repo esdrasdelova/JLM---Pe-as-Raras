@@ -1,0 +1,18 @@
+@model Category
+@{
+    ViewData["Title"] = "Editar categoria";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo / Categorias</span>
+        <h2>Editar categoria</h2>
+        <p>Ajuste a identidade e a visibilidade de “@Model.Name”.</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="/@Model.Slug" target="_blank" rel="noopener"><svg class="icon"><use href="#i-eye"></use></svg> Ver</a>
+        <a class="admin-btn admin-btn--ghost" href="/admin/categories"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+    </div>
+</div>
+
+@await Html.PartialAsync("_CategoryForm", Model)

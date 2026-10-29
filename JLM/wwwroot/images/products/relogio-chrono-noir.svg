@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" role="img" aria-label="Relógio Chrono Noir">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171614"/><stop offset=".55" stop-color="#111110"/><stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="36%" r="62%">
+      <stop offset="0" stop-color="#C9A45C" stop-opacity=".18"/><stop offset=".6" stop-color="#C9A45C" stop-opacity=".04"/><stop offset="1" stop-color="#C9A45C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="fabric-hi"/><stop offset=".5" class="fabric-body"/><stop offset="1" class="fabric-body2"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".06"/></feComponentTransfer></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <rect width="900" height="1125" fill="url(#glow)"/>
+  <g fill="none" stroke="#C9A45C" opacity=".10">
+    <circle cx="450" cy="470" r="330"/><circle cx="450" cy="470" r="250"/><circle cx="450" cy="470" r="170"/>
+    <path d="M80 950 L820 190"/><path d="M60 760 L720 60"/><path d="M180 1080 L900 340"/>
+  </g>
+  <g opacity=".5" fill="#C9A45C">
+    <circle cx="118" cy="132" r="2.5"/><circle cx="782" cy="132" r="2.5"/><circle cx="118" cy="992" r="2.5"/><circle cx="782" cy="992" r="2.5"/>
+  </g>
+  <ellipse cx="450" cy="885" rx="250" ry="42" fill="#000" opacity=".55" filter="url(#soft)"/>
+  <g><style>.fabric-body{stop-color:#1c1c1c} .fabric-body2{stop-color:#111111} .fabric-hi{stop-color:#2b2a27} .st{stroke:#4a463f} .ink{fill:#C9A45C} .inkst{stroke:#C9A45C}</style><g>
+    <rect x="382" y="204" width="136" height="190" rx="34" fill="#111111" stroke="#4a463f" stroke-width="5"/>
+    <rect x="382" y="740" width="136" height="190" rx="34" fill="#111111" stroke="#4a463f" stroke-width="5"/>
+    <circle cx="450" cy="568" r="196" fill="#111111" stroke="#2b2a27" stroke-width="10"/>
+    <circle cx="450" cy="568" r="174" fill="#1c1c1c" stroke="#4a463f" stroke-width="3"/>
+    <circle cx="450" cy="568" r="148" fill="none" stroke="#4a463f" opacity=".4"/>
+    <g stroke="#2b2a27" stroke-width="5"><path d="M450 406 L450 428"/><path d="M450 708 L450 730"/><path d="M288 568 L310 568"/><path d="M590 568 L612 568"/></g>
+    <g stroke="#2b2a27" stroke-width="3" opacity=".6"><path d="M582.0 568.0 L592.0 568.0"/><path d="M564.3 634.0 L573.0 639.0"/><path d="M516.0 682.3 L521.0 691.0"/><path d="M450.0 700.0 L450.0 710.0"/><path d="M384.0 682.3 L379.0 691.0"/><path d="M335.7 634.0 L327.0 639.0"/><path d="M318.0 568.0 L308.0 568.0"/><path d="M335.7 502.0 L327.0 497.0"/><path d="M384.0 453.7 L379.0 445.0"/><path d="M450.0 436.0 L450.0 426.0"/><path d="M516.0 453.7 L521.0 445.0"/><path d="M564.3 502.0 L573.0 497.0"/></g>
+    <path d="M450 568 L450 466" stroke="#C9A45C" stroke-width="7" stroke-linecap="round"/>
+    <path d="M450 568 L532 610" stroke="#C9A45C" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="450" cy="568" r="10" fill="#C9A45C"/>
+    <text x="450" y="650" text-anchor="middle" fill="#C9A45C" font-family="Georgia, serif" font-size="21" letter-spacing="4">JLM</text>
+  </g></g>
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <text x="450" y="1032" fill="#C9A45C" font-size="27" letter-spacing="11">JLM</text>
+    <text x="450" y="1062" fill="#8b8578" font-size="11" letter-spacing="5" font-family="Arial, sans-serif">EST. 2024 · SÃO PAULO</text>
+  </g>
+  <rect x="28" y="28" width="844" height="1069" fill="none" stroke="#C9A45C" stroke-opacity=".22"/>
+  <rect width="900" height="1125" filter="url(#grain)" opacity=".55"/>
+</svg>

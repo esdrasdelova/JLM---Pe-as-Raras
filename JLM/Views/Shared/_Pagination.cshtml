@@ -1,0 +1,57 @@
+@model JLM.ViewModels.PaginationViewModel
+@{
+    string PageUrl(int page)
+    {
+        var query = Context.Request.Query
+            .Where(q => !string.Equals(q.Key, "pagina", StringComparison.OrdinalIgnoreCase))
+            .SelectMany(q => q.Value.Select(v => $"{Uri.EscapeDataString(q.Key)}={Uri.EscapeDataString(v ?? string.Empty)}"))
+            .ToList();
+        query.Add($"pagina={page}");
+        return $"{Context.Request.Path}?{string.Join("&", query)}";
+    }
+
+    var start = Math.Max(1, Model.Page - 2);
+    var end = Math.Min(Model.TotalPages, start + 4);
+    start = Math.Max(1, end - 4);
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="pagination" aria-label="Paginação">
+        <a class="pagination__arrow @(Model.Page <= 1 ? "is-disabled" : "")"
+           href="@(Model.Page <= 1 ? "#" : PageUrl(Model.Page - 1))"
+           aria-label="Página anterior" aria-disabled="@(Model.Page <= 1)">
+            <svg class="icon"><use href="#i-arrow-left"></use></svg>
+        </a>
+
+        @if (start > 1)
+        {
+            <a href="@PageUrl(1)">1</a>
+            @if (start > 2)
+            {
+                <span class="pagination__dots">…</span>
+            }
+        }
+
+        @for (var i = start; i <= end; i++)
+        {
+            <a href="@PageUrl(i)" class="@(i == Model.Page ? "is-active" : "")" aria-current="@(i == Model.Page ? "page" : null)">@i</a>
+        }
+
+        @if (end < Model.TotalPages)
+        {
+            @if (end < Model.TotalPages - 1)
+            {
+                <span class="pagination__dots">…</span>
+            }
+            <a href="@PageUrl(Model.TotalPages)">@Model.TotalPages</a>
+        }
+
+        <a class="pagination__arrow @(Model.Page >= Model.TotalPages ? "is-disabled" : "")"
+           href="@(Model.Page >= Model.TotalPages ? "#" : PageUrl(Model.Page + 1))"
+           aria-label="Próxima página" aria-disabled="@(Model.Page >= Model.TotalPages)">
+            <svg class="icon"><use href="#i-arrow-right"></use></svg>
+        </a>
+        <span class="pagination__summary">Página @Model.Page de @Model.TotalPages</span>
+    </nav>
+}

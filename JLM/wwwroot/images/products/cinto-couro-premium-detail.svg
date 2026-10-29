@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" role="img" aria-label="Cinto Couro Premium — detalhe">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171614"/><stop offset=".55" stop-color="#111110"/><stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="36%" r="62%">
+      <stop offset="0" stop-color="#C9A45C" stop-opacity=".18"/><stop offset=".6" stop-color="#C9A45C" stop-opacity=".04"/><stop offset="1" stop-color="#C9A45C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="fabric-hi"/><stop offset=".5" class="fabric-body"/><stop offset="1" class="fabric-body2"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".06"/></feComponentTransfer></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <rect width="900" height="1125" fill="url(#glow)"/>
+  <g fill="none" stroke="#C9A45C" opacity=".10">
+    <circle cx="450" cy="470" r="330"/><circle cx="450" cy="470" r="250"/><circle cx="450" cy="470" r="170"/>
+    <path d="M80 950 L820 190"/><path d="M60 760 L720 60"/><path d="M180 1080 L900 340"/>
+  </g>
+  <g opacity=".5" fill="#C9A45C">
+    <circle cx="118" cy="132" r="2.5"/><circle cx="782" cy="132" r="2.5"/><circle cx="118" cy="992" r="2.5"/><circle cx="782" cy="992" r="2.5"/>
+  </g>
+  <ellipse cx="450" cy="885" rx="250" ry="42" fill="#000" opacity=".55" filter="url(#soft)"/>
+  <g transform="translate(450 560) scale(1.55) translate(-450 -560)"><style>.fabric-body{stop-color:#4A3A2E} .fabric-body2{stop-color:#33271F} .fabric-hi{stop-color:#5A4838} .st{stroke:#7B6350} .ink{fill:#C9A45C} .inkst{stroke:#C9A45C}</style><g>
+    <path d="M180 500 Q450 460 720 500 L712 620 Q450 582 188 620 Z" fill="url(#fabric)" stroke="#7B6350" stroke-width="4"/>
+    <path d="M180 560 Q450 520 720 560" stroke="#7B6350" opacity=".5"/>
+    <g fill="none" stroke="#7B6350" opacity=".7"><circle cx="300" cy="545" r="6"/><circle cx="420" cy="539" r="6"/><circle cx="540" cy="545" r="6"/></g>
+    <rect x="660" y="468" width="130" height="180" rx="16" fill="#33271F" stroke="#5A4838" stroke-width="7"/>
+    <rect x="684" y="498" width="82" height="120" rx="8" fill="none" stroke="#7B6350" stroke-width="3"/>
+    <path d="M725 468 L725 648" stroke="#C9A45C" stroke-width="5" opacity=".8"/>
+    <text x="450" y="780" text-anchor="middle" fill="#C9A45C" font-family="Georgia, serif" font-size="24" letter-spacing="7">JLM</text>
+  </g></g>
+     <rect x="28" y="28" width="844" height="1069" fill="#080808" opacity=".18"/>
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <text x="450" y="1032" fill="#C9A45C" font-size="27" letter-spacing="11">JLM</text>
+    <text x="450" y="1062" fill="#8b8578" font-size="11" letter-spacing="5" font-family="Arial, sans-serif">EST. 2024 · SÃO PAULO</text>
+  </g>
+  <rect x="28" y="28" width="844" height="1069" fill="none" stroke="#C9A45C" stroke-opacity=".22"/>
+  <rect width="900" height="1125" filter="url(#grain)" opacity=".55"/>
+</svg>

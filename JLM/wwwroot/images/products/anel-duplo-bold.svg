@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" role="img" aria-label="Anel Duplo Bold">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171614"/><stop offset=".55" stop-color="#111110"/><stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="36%" r="62%">
+      <stop offset="0" stop-color="#E3C27E" stop-opacity=".18"/><stop offset=".6" stop-color="#E3C27E" stop-opacity=".04"/><stop offset="1" stop-color="#E3C27E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="fabric-hi"/><stop offset=".5" class="fabric-body"/><stop offset="1" class="fabric-body2"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".06"/></feComponentTransfer></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <rect width="900" height="1125" fill="url(#glow)"/>
+  <g fill="none" stroke="#E3C27E" opacity=".10">
+    <circle cx="450" cy="470" r="330"/><circle cx="450" cy="470" r="250"/><circle cx="450" cy="470" r="170"/>
+    <path d="M80 950 L820 190"/><path d="M60 760 L720 60"/><path d="M180 1080 L900 340"/>
+  </g>
+  <g opacity=".5" fill="#E3C27E">
+    <circle cx="118" cy="132" r="2.5"/><circle cx="782" cy="132" r="2.5"/><circle cx="118" cy="992" r="2.5"/><circle cx="782" cy="992" r="2.5"/>
+  </g>
+  <ellipse cx="450" cy="885" rx="250" ry="42" fill="#000" opacity=".55" filter="url(#soft)"/>
+  <g><style>.fabric-body{stop-color:#C9A45C} .fabric-body2{stop-color:#A98543} .fabric-hi{stop-color:#E3C27E} .st{stroke:#E6CE9A} .ink{fill:#17130b} .inkst{stroke:#17130b}</style><g>
+    <ellipse cx="450" cy="570" rx="152" ry="176" fill="none" stroke="#A98543" stroke-width="44"/>
+    <ellipse cx="450" cy="570" rx="152" ry="176" fill="none" stroke="#C9A45C" stroke-width="34"/>
+    <ellipse cx="450" cy="570" rx="152" ry="176" fill="none" stroke="#E3C27E" stroke-width="6" opacity=".8"/>
+    <path d="M450 394 L512 448 L488 512 L412 512 L388 448 Z" fill="#A98543" stroke="#E3C27E" stroke-width="5"/>
+    <path d="M450 414 L488 452 L470 492 L430 492 L412 452 Z" fill="#E3C27E" opacity=".55"/>
+    <path d="M450 394 L450 512 M412 448 L488 448" stroke="#E6CE9A" opacity=".5"/>
+    <text x="450" y="820" text-anchor="middle" fill="#17130b" font-family="Georgia, serif" font-size="22" letter-spacing="6">JLM</text>
+    <path d="M360 840 L540 840" stroke="#17130b" opacity=".4"/>
+  </g></g>
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <text x="450" y="1032" fill="#E3C27E" font-size="27" letter-spacing="11">JLM</text>
+    <text x="450" y="1062" fill="#8b8578" font-size="11" letter-spacing="5" font-family="Arial, sans-serif">EST. 2024 · SÃO PAULO</text>
+  </g>
+  <rect x="28" y="28" width="844" height="1069" fill="none" stroke="#E3C27E" stroke-opacity=".22"/>
+  <rect width="900" height="1125" filter="url(#grain)" opacity=".55"/>
+</svg>

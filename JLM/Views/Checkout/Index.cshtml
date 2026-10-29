@@ -1,0 +1,315 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    ViewData["Description"] = "Finalize seu pedido JLM com entrega rápida e pagamento seguro.";
+    ViewData["BodyClass"] = "page-checkout";
+}
+
+<section class="page-intro page-intro--checkout">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><a href="/carrinho">Carrinho</a><span>/</span><span aria-current="page">Checkout</span>
+            </nav>
+            <span class="eyebrow">Quase lá</span>
+            <h1>Finalizar <em>pedido.</em></h1>
+        </div>
+        <div class="cart-steps cart-steps--checkout" aria-label="Etapas da compra">
+            <a href="/carrinho"><em>1</em> Carrinho</a>
+            <span class="is-active"><em>2</em> Entrega</span>
+            <span><em>3</em> Pagamento</span>
+        </div>
+    </div>
+</section>
+
+<section class="section checkout">
+    <div class="container">
+        <form action="/checkout" method="post" class="checkout__form" data-checkout-form>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="CouponCode" value="@Model.CouponCode" />
+
+            <div class="checkout__layout">
+                <div class="checkout__fields">
+                    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                    <section class="checkout-card">
+                        <div class="checkout-card__head">
+                            <span class="checkout-card__step">01</span>
+                            <div>
+                                <h2>Seus dados</h2>
+                                <p>Usaremos para emitir a nota e enviar as atualizações do pedido.</p>
+                            </div>
+                            <a href="/conta/editar" class="link-arrow">Editar cadastro</a>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field field--full">
+                                <label asp-for="CustomerName">Nome completo <span>*</span></label>
+                                <input asp-for="CustomerName" autocomplete="name" placeholder="Como no documento" />
+                                <span asp-validation-for="CustomerName" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="Email">E-mail <span>*</span></label>
+                                <input asp-for="Email" type="email" autocomplete="email" placeholder="voce@email.com" />
+                                <span asp-validation-for="Email" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="Phone">Telefone / WhatsApp <span>*</span></label>
+                                <input asp-for="Phone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" data-mask-phone />
+                                <span asp-validation-for="Phone" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="Cpf">CPF</label>
+                                <input asp-for="Cpf" inputmode="numeric" placeholder="000.000.000-00" data-mask-cpf />
+                                <span asp-validation-for="Cpf" class="field-error"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="checkout-card">
+                        <div class="checkout-card__head">
+                            <span class="checkout-card__step">02</span>
+                            <div>
+                                <h2>Endereço de entrega</h2>
+                                <p>Enviamos para todo o Brasil com rastreio.</p>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label asp-for="ShippingZipCode">CEP <span>*</span></label>
+                                <div class="input-action">
+                                    <input asp-for="ShippingZipCode" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" data-mask-cep data-cep-input />
+                                    <span class="input-action__hint" data-cep-status></span>
+                                </div>
+                                <span asp-validation-for="ShippingZipCode" class="field-error"></span>
+                            </div>
+                            <div class="field field--grow">
+                                <label asp-for="ShippingAddress">Endereço <span>*</span></label>
+                                <input asp-for="ShippingAddress" autocomplete="address-line1" placeholder="Rua, avenida..." data-cep-address />
+                                <span asp-validation-for="ShippingAddress" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="ShippingNumber">Número <span>*</span></label>
+                                <input asp-for="ShippingNumber" inputmode="numeric" placeholder="123" />
+                                <span asp-validation-for="ShippingNumber" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="ShippingComplement">Complemento</label>
+                                <input asp-for="ShippingComplement" placeholder="Apto, bloco (opcional)" />
+                                <span asp-validation-for="ShippingComplement" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="ShippingNeighborhood">Bairro <span>*</span></label>
+                                <input asp-for="ShippingNeighborhood" autocomplete="address-level3" placeholder="Seu bairro" data-cep-neighborhood />
+                                <span asp-validation-for="ShippingNeighborhood" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="ShippingCity">Cidade <span>*</span></label>
+                                <input asp-for="ShippingCity" autocomplete="address-level2" placeholder="Sua cidade" data-cep-city />
+                                <span asp-validation-for="ShippingCity" class="field-error"></span>
+                            </div>
+                            <div class="field">
+                                <label asp-for="ShippingState">Estado <span>*</span></label>
+                                <input asp-for="ShippingState" maxlength="2" placeholder="SP" data-cep-state />
+                                <span asp-validation-for="ShippingState" class="field-error"></span>
+                            </div>
+                        </div>
+
+                        <fieldset class="option-group option-group--shipping">
+                            <legend>Método de envio</legend>
+                            <div class="radio-cards">
+                                <label class="radio-card">
+                                    <input asp-for="ShippingMethod" type="radio" value="Standard" data-shipping-option data-cost="29.90" />
+                                    <span class="radio-card__body">
+                                        <span class="radio-card__top">
+                                            <strong>Entrega padrão</strong>
+                                            <em>@(Model.Subtotal >= 500 ? "Grátis" : "R$ 29,90")</em>
+                                        </span>
+                                        <span>3 a 7 dias úteis · rastreio incluso</span>
+                                    </span>
+                                </label>
+                                <label class="radio-card">
+                                    <input asp-for="ShippingMethod" type="radio" value="Express" data-shipping-option data-cost="49.90" />
+                                    <span class="radio-card__body">
+                                        <span class="radio-card__top">
+                                            <strong>Entrega expressa</strong>
+                                            <em>@(Model.Subtotal >= 900 ? "Grátis" : "R$ 49,90")</em>
+                                        </span>
+                                        <span>1 a 3 dias úteis · prioridade</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
+                    </section>
+
+                    <section class="checkout-card">
+                        <div class="checkout-card__head">
+                            <span class="checkout-card__step">03</span>
+                            <div>
+                                <h2>Pagamento</h2>
+                                <p>Ambiente criptografado. Seus dados não são armazenados.</p>
+                            </div>
+                            <span class="secure-pill"><svg class="icon"><use href="#i-lock"></use></svg> Seguro</span>
+                        </div>
+
+                        <fieldset class="option-group">
+                            <legend>Forma de pagamento</legend>
+                            <div class="payment-options">
+                                <label class="payment-option">
+                                    <input asp-for="PaymentMethod" type="radio" value="Pix" data-payment-option />
+                                    <span class="payment-option__body">
+                                        <span class="payment-option__icon"><svg class="icon"><use href="#i-sparkle"></use></svg></span>
+                                        <strong>Pix</strong>
+                                        <em>5% de desconto</em>
+                                        <small>Aprovação imediata</small>
+                                    </span>
+                                </label>
+                                <label class="payment-option">
+                                    <input asp-for="PaymentMethod" type="radio" value="CreditCard" data-payment-option />
+                                    <span class="payment-option__body">
+                                        <span class="payment-option__icon"><svg class="icon"><use href="#i-card"></use></svg></span>
+                                        <strong>Cartão</strong>
+                                        <em>Até 6x sem juros</em>
+                                        <small>Visa, Master, Elo</small>
+                                    </span>
+                                </label>
+                                <label class="payment-option">
+                                    <input asp-for="PaymentMethod" type="radio" value="Boleto" data-payment-option />
+                                    <span class="payment-option__body">
+                                        <span class="payment-option__icon"><svg class="icon"><use href="#i-credit"></use></svg></span>
+                                        <strong>Boleto</strong>
+                                        <em>À vista</em>
+                                        <small>Vence em 2 dias</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <div class="payment-panel" data-payment-panel="Pix">
+                            <div class="payment-panel__pix">
+                                <svg class="icon"><use href="#i-sparkle"></use></svg>
+                                <div>
+                                    <strong>Pagamento instantâneo</strong>
+                                    <p>Ao confirmar, você receberá o QR Code Pix na tela de sucesso do pedido. O 5% de desconto é aplicado automaticamente no total.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-panel" data-payment-panel="CreditCard" hidden>
+                            <div class="form-grid">
+                                <div class="field field--full">
+                                    <label>Número do cartão</label>
+                                    <input type="text" inputmode="numeric" placeholder="0000 0000 0000 0000" data-mask-card autocomplete="cc-number" />
+                                </div>
+                                <div class="field">
+                                    <label>Nome no cartão</label>
+                                    <input type="text" placeholder="Como impresso" autocomplete="cc-name" />
+                                </div>
+                                <div class="field">
+                                    <label>Validade</label>
+                                    <input type="text" placeholder="MM/AA" maxlength="5" data-mask-expiry autocomplete="cc-exp" />
+                                </div>
+                                <div class="field">
+                                    <label>CVV</label>
+                                    <input type="text" inputmode="numeric" placeholder="000" maxlength="4" autocomplete="cc-csc" />
+                                </div>
+                            </div>
+                            <p class="payment-panel__note"><svg class="icon"><use href="#i-lock"></use></svg> Simulação segura. Nenhum dado de cartão é armazenado neste ambiente de demonstração.</p>
+                        </div>
+
+                        <div class="payment-panel" data-payment-panel="Boleto" hidden>
+                            <p class="payment-panel__note"><svg class="icon"><use href="#i-info"></use></svg> O boleto será gerado após a confirmação e enviado para o seu e-mail. A compensação pode levar até 2 dias úteis.</p>
+                        </div>
+                    </section>
+
+                    <section class="checkout-card checkout-card--notes">
+                        <div class="checkout-card__head">
+                            <span class="checkout-card__step">+</span>
+                            <div>
+                                <h2>Observações</h2>
+                                <p>Instruções de entrega, embalagem para presente ou referência de porte.</p>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label asp-for="Notes">Mensagem (opcional)</label>
+                            <textarea asp-for="Notes" rows="3" maxlength="500" placeholder="Ex.: entregar para a portaria, embalar como presente..."></textarea>
+                            <span asp-validation-for="Notes" class="field-error"></span>
+                        </div>
+                        <label class="checkout-terms">
+                            <input type="checkbox" required />
+                            <span>Li e aceito os <a href="/privacidade">termos de uso e a política de privacidade</a> da JLM.</span>
+                        </label>
+                    </section>
+                </div>
+
+                <aside class="checkout-summary">
+                    <div class="checkout-summary__head">
+                        <span class="eyebrow">Seu pedido</span>
+                        <h2>@Model.ItemCount @(Model.ItemCount == 1 ? "peça" : "peças")</h2>
+                        <a href="/carrinho">Editar carrinho</a>
+                    </div>
+
+                    <div class="checkout-summary__items">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="checkout-line">
+                                <div class="checkout-line__media">
+                                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" />
+                                    <span>@item.Quantity</span>
+                                </div>
+                                <div class="checkout-line__body">
+                                    <strong>@item.Product.Name</strong>
+                                    <span>@item.Size @(string.IsNullOrWhiteSpace(item.Color) ? "" : $"· {item.Color}")</span>
+                                </div>
+                                <em>@item.LineTotal.ToBrl()</em>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="checkout-summary__coupon">
+                        @if (Model.Coupon is not null)
+                        {
+                            <div class="coupon-applied">
+                                <div>
+                                    <svg class="icon"><use href="#i-ticket"></use></svg>
+                                    <div><strong>@Model.Coupon.Code</strong><span>@Model.Coupon.Description</span></div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <a href="/carrinho" class="checkout-summary__coupon-link"><svg class="icon"><use href="#i-ticket"></use></svg> Adicionar cupom no carrinho</a>
+                        }
+                    </div>
+
+                    <dl class="summary-lines">
+                        <div><dt>Subtotal</dt><dd>@Model.Subtotal.ToBrl()</dd></div>
+                        <div><dt>Frete</dt><dd data-shipping-display>@(Model.ShippingCost == 0 ? "Grátis" : Model.ShippingCost.ToBrl())</dd></div>
+                        @if (Model.Discount > 0)
+                        {
+                            <div class="summary-lines__discount"><dt>Desconto</dt><dd>− @Model.Discount.ToBrl()</dd></div>
+                        }
+                        <div class="summary-lines__total"><dt>Total</dt><dd data-total-display>@Model.Total.ToBrl()</dd></div>
+                    </dl>
+
+                    <p class="summary-installments">ou <strong>@Model.Total.Installments(6)</strong></p>
+
+                    <button type="submit" class="btn btn--gold btn--block btn--lg" data-submit-order>
+                        Confirmar pedido <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </button>
+
+                    <p class="checkout-summary__note"><svg class="icon"><use href="#i-shield"></use></svg> Ao confirmar, seu pedido é reservado e o estoque é atualizado em tempo real.</p>
+
+                    <div class="summary-trust">
+                        <div><svg class="icon"><use href="#i-lock"></use></svg><span>Pagamento<br /><strong>100% seguro</strong></span></div>
+                        <div><svg class="icon"><use href="#i-refresh"></use></svg><span>Troca fácil<br /><strong>em 30 dias</strong></span></div>
+                    </div>
+
+                    <div class="checkout-summary__help">
+                        <span>Precisa de ajuda?</span>
+                        <a href="/contato">Falar com a JLM <svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+                    </div>
+                </aside>
+            </div>
+        </form>
+    </div>
+</section>

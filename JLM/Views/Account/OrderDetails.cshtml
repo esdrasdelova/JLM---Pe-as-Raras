@@ -1,0 +1,134 @@
+@model Order
+@{
+    ViewData["Title"] = $"Pedido {Model.OrderNumber}";
+    ViewData["Description"] = "Detalhes e acompanhamento do seu pedido JLM.";
+    ViewData["BodyClass"] = "page-account";
+    var canCancel = Model.Status is OrderStatus.Pending or OrderStatus.Paid or OrderStatus.Processing;
+    var steps = new[] { OrderStatus.Pending, OrderStatus.Paid, OrderStatus.Processing, OrderStatus.Shipped, OrderStatus.Delivered };
+    var currentIndex = Array.IndexOf(steps, Model.Status);
+    if (Model.Status == OrderStatus.Cancelled) currentIndex = -1;
+}
+
+<section class="page-intro page-intro--small">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><a href="/conta">Minha conta</a><span>/</span><a href="/conta/pedidos">Pedidos</a><span>/</span><span aria-current="page">@Model.OrderNumber</span>
+            </nav>
+            <span class="eyebrow">Acompanhamento</span>
+            <h1>Pedido <em>@Model.OrderNumber</em></h1>
+            <p class="page-intro__sub">Realizado em @Model.CreatedAt.ToLocalTime().ToLongDate() · @Model.Items.Sum(i => i.Quantity) @(Model.Items.Sum(i => i.Quantity) == 1 ? "item" : "itens")</p>
+        </div>
+        <span class="@OrderDisplay.CssClass(Model.Status) status--lg">@Model.StatusLabel</span>
+    </div>
+</section>
+
+<section class="section account">
+    <div class="container account__layout">
+        @await Html.PartialAsync("_AccountNav")
+
+        <div class="account__content">
+            @if (Model.Status == OrderStatus.Cancelled)
+            {
+                <div class="alert alert--error">
+                    <svg class="icon"><use href="#i-alert"></use></svg>
+                    <div><strong>Pedido cancelado.</strong> O estorno será processado conforme a forma de pagamento em até 10 dias úteis.</div>
+                </div>
+            }
+            else
+            {
+                <div class="account-section order-track">
+                    <div class="account-section__head">
+                        <div><span class="eyebrow">Status</span><h2>Acompanhe seu pedido</h2></div>
+                        <span class="order-track__eta"><svg class="icon"><use href="#i-truck"></use></svg> @OrderDisplay.ShippingLabel(Model.ShippingMethod)</span>
+                    </div>
+                    <ol class="track">
+                        @for (var i = 0; i < steps.Length; i++)
+                        {
+                            var step = steps[i];
+                            var label = step switch
+                            {
+                                OrderStatus.Pending => "Pedido recebido",
+                                OrderStatus.Paid => "Pagamento aprovado",
+                                OrderStatus.Processing => "Em preparação",
+                                OrderStatus.Shipped => "Enviado",
+                                OrderStatus.Delivered => "Entregue",
+                                _ => step.ToString()
+                            };
+                            <li class="@(i < currentIndex ? "is-done" : i == currentIndex ? "is-current" : "")">
+                                <span>@(i < currentIndex ? "✓" : (i + 1).ToString())</span>
+                                <div><strong>@label</strong></div>
+                            </li>
+                        }
+                    </ol>
+                </div>
+            }
+
+            <div class="account-grid">
+                <div class="account-section">
+                    <div class="account-section__head">
+                        <div><span class="eyebrow">Itens</span><h2>Resumo do pedido</h2></div>
+                    </div>
+                    <div class="success-items">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="success-item">
+                                <img src="@item.ProductImageUrl" alt="@item.ProductName" />
+                                <div>
+                                    <strong>@item.ProductName</strong>
+                                    <span>@item.Size @(string.IsNullOrWhiteSpace(item.Color) ? "" : $"· {item.Color}") · @item.Quantity un.</span>
+                                </div>
+                                <em>@item.LineTotal.ToBrl()</em>
+                            </div>
+                        }
+                    </div>
+                    <dl class="summary-lines">
+                        <div><dt>Subtotal</dt><dd>@Model.Subtotal.ToBrl()</dd></div>
+                        <div><dt>Frete</dt><dd>@(Model.ShippingCost == 0 ? "Grátis" : Model.ShippingCost.ToBrl())</dd></div>
+                        @if (Model.Discount > 0)
+                        {
+                            <div class="summary-lines__discount"><dt>Desconto @Model.CouponCode</dt><dd>− @Model.Discount.ToBrl()</dd></div>
+                        }
+                        <div class="summary-lines__total"><dt>Total</dt><dd>@Model.Total.ToBrl()</dd></div>
+                    </dl>
+                </div>
+
+                <div class="account-section">
+                    <div class="account-section__head">
+                        <div><span class="eyebrow">Logística</span><h2>Entrega & pagamento</h2></div>
+                    </div>
+                    <dl class="info-list">
+                        <div><dt>Pagamento</dt><dd>@OrderDisplay.PaymentLabel(Model.PaymentMethod)</dd></div>
+                        <div><dt>Envio</dt><dd>@OrderDisplay.ShippingLabel(Model.ShippingMethod)</dd></div>
+                        <div><dt>Recebedor</dt><dd>@Model.CustomerName</dd></div>
+                        <div><dt>Contato</dt><dd>@Model.Email<br />@Model.Phone</dd></div>
+                    </dl>
+                    <address class="order-address">
+                        <strong>Endereço de entrega</strong>
+                        @Model.ShippingAddress, @Model.ShippingNumber<br />
+                        @if (!string.IsNullOrWhiteSpace(Model.ShippingComplement))
+                        {
+                            <text>@Model.ShippingComplement<br /></text>
+                        }
+                        @Model.ShippingNeighborhood · @Model.ShippingCity — @Model.ShippingState<br />
+                        CEP @Model.ShippingZipCode
+                    </address>
+                </div>
+            </div>
+
+            <div class="account-section account-section--actions">
+                <div>
+                    <a class="btn btn--ghost" href="/conta/pedidos"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar aos pedidos</a>
+                    <a class="btn btn--ghost" href="/contato">Preciso de ajuda</a>
+                </div>
+                @if (canCancel)
+                {
+                    <form action="/conta/pedidos/@Model.OrderNumber/cancelar" method="post" data-confirm="Tem certeza que deseja cancelar este pedido?">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn--danger">Cancelar pedido</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</section>

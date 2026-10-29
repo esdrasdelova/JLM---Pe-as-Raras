@@ -1,0 +1,211 @@
+@model Order
+@{
+    ViewData["Title"] = $"Pedido {Model.OrderNumber}";
+    var statuses = Enum.GetValues<OrderStatus>();
+    var itemCount = Model.Items.Sum(i => i.Quantity);
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Vendas / Pedidos</span>
+        <h2>Pedido @Model.OrderNumber</h2>
+        <p>Realizado em @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy 'às' HH:mm") · @itemCount @(itemCount == 1 ? "item" : "itens") · @OrderDisplay.PaymentLabel(Model.PaymentMethod).</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/orders"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+        <span class="@OrderDisplay.CssClass(Model.Status) status--lg">@Model.StatusLabel</span>
+    </div>
+</div>
+
+<div class="admin-grid admin-grid--2-1">
+    <div class="admin-stack">
+        <section class="admin-card">
+            <div class="admin-card__head">
+                <div>
+                    <span class="admin-eyebrow">Itens</span>
+                    <h3>Resumo do pedido</h3>
+                </div>
+                <span class="admin-card__muted">@itemCount un.</span>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table admin-table--items">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Variação</th>
+                            <th>Preço</th>
+                            <th>Qtd.</th>
+                            <th class="admin-table__right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="table-product table-product--sm">
+                                        <img src="@item.ProductImageUrl" alt="@item.ProductName" />
+                                        <div>
+                                            <strong>@item.ProductName</strong>
+                                            @if (item.ProductId.HasValue)
+                                            {
+                                                <a class="table-sub" href="/admin/products/edit/@item.ProductId">Editar produto</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="table-muted">
+                                    @(string.IsNullOrWhiteSpace(item.Size) ? "—" : item.Size)
+                                    @if (!string.IsNullOrWhiteSpace(item.Color))
+                                    {
+                                        <text> · @item.Color</text>
+                                    }
+                                </td>
+                                <td>@item.UnitPrice.ToBrl()</td>
+                                <td>@item.Quantity</td>
+                                <td class="admin-table__num"><strong>@item.LineTotal.ToBrl()</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <dl class="admin-totals">
+                <div><dt>Subtotal</dt><dd>@Model.Subtotal.ToBrl()</dd></div>
+                <div><dt>Frete</dt><dd>@(Model.ShippingCost == 0 ? "Grátis" : Model.ShippingCost.ToBrl())</dd></div>
+                @if (Model.Discount > 0)
+                {
+                    <div class="is-discount"><dt>Desconto @Model.CouponCode</dt><dd>− @Model.Discount.ToBrl()</dd></div>
+                }
+                <div class="is-total"><dt>Total</dt><dd>@Model.Total.ToBrl()</dd></div>
+            </dl>
+        </section>
+
+        <section class="admin-card">
+            <div class="admin-card__head">
+                <div>
+                    <span class="admin-eyebrow">Logística</span>
+                    <h3>Entrega</h3>
+                </div>
+            </div>
+            <div class="admin-info-grid">
+                <div>
+                    <span class="admin-info-label">Recebedor</span>
+                    <strong>@Model.CustomerName</strong>
+                    <p>@Model.Email<br />@Model.Phone</p>
+                    @if (!string.IsNullOrWhiteSpace(Model.Cpf))
+                    {
+                        <p>CPF @Model.Cpf</p>
+                    }
+                </div>
+                <div>
+                    <span class="admin-info-label">Endereço</span>
+                    <p>
+                        @Model.ShippingAddress, @Model.ShippingNumber<br />
+                        @if (!string.IsNullOrWhiteSpace(Model.ShippingComplement))
+                        {
+                            <text>@Model.ShippingComplement<br /></text>
+                        }
+                        @Model.ShippingNeighborhood<br />
+                        @Model.ShippingCity — @Model.ShippingState<br />
+                        CEP @Model.ShippingZipCode
+                    </p>
+                </div>
+                <div>
+                    <span class="admin-info-label">Método</span>
+                    <p>
+                        <strong>@OrderDisplay.ShippingLabel(Model.ShippingMethod)</strong><br />
+                        @OrderDisplay.PaymentLabel(Model.PaymentMethod)
+                    </p>
+                    @if (Model.UserId.HasValue)
+                    {
+                        <a class="admin-link" href="/admin/customers/details/@Model.UserId">Ver perfil do cliente <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                    }
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <div class="admin-note">
+                    <svg class="icon"><use href="#i-info"></use></svg>
+                    <div><strong>Observações do cliente</strong><p>@Model.Notes</p></div>
+                </div>
+            }
+        </section>
+    </div>
+
+    <aside class="admin-stack">
+        <section class="admin-card">
+            <div class="admin-card__head">
+                <div>
+                    <span class="admin-eyebrow">Operação</span>
+                    <h3>Atualizar status</h3>
+                </div>
+            </div>
+            <form class="admin-form admin-form--compact" asp-area="Admin" asp-controller="Orders" asp-action="UpdateStatus" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderNumber" value="@Model.OrderNumber" />
+
+                <div class="admin-field">
+                    <label for="order-status">Novo status</label>
+                    <div class="admin-select">
+                        <select id="order-status" name="status">
+                            @foreach (var status in statuses)
+                            {
+                                <option value="@status" selected="@(Model.Status == status)">@OrderDisplay.StatusLabel(status)</option>
+                            }
+                        </select>
+                        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                    </div>
+                </div>
+
+                <div class="admin-field">
+                    <label for="tracking-note">Nota interna / rastreio</label>
+                    <textarea id="tracking-note" name="trackingNote" rows="3" placeholder="Código de rastreio, observação...">@Model.Notes</textarea>
+                </div>
+
+                <p class="admin-hint">Ao cancelar, o estoque é devolvido automaticamente. Reativar exige estoque disponível.</p>
+
+                <button class="admin-btn admin-btn--gold admin-btn--block" type="submit">
+                    <svg class="icon"><use href="#i-check"></use></svg> Salvar status
+                </button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <div class="admin-card__head"><h3>Linha do tempo</h3></div>
+            <ul class="admin-timeline">
+                <li class="is-done"><span></span><div><strong>Pedido criado</strong><p>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p></div></li>
+                @if (Model.Status >= OrderStatus.Paid)
+                {
+                    <li class="is-done"><span></span><div><strong>Pagamento aprovado</strong><p>@OrderDisplay.PaymentLabel(Model.PaymentMethod)</p></div></li>
+                }
+                @if (Model.Status >= OrderStatus.Processing)
+                {
+                    <li class="is-done"><span></span><div><strong>Em preparação</strong><p>Separação e conferência</p></div></li>
+                }
+                @if (Model.Status >= OrderStatus.Shipped)
+                {
+                    <li class="is-done"><span></span><div><strong>Enviado</strong><p>@OrderDisplay.ShippingLabel(Model.ShippingMethod)</p></div></li>
+                }
+                @if (Model.Status == OrderStatus.Delivered)
+                {
+                    <li class="is-done"><span></span><div><strong>Entregue</strong><p>Pedido concluído</p></div></li>
+                }
+                @if (Model.Status == OrderStatus.Cancelled)
+                {
+                    <li class="is-cancelled"><span></span><div><strong>Cancelado</strong><p>Estoque devolvido ao catálogo</p></div></li>
+                }
+                <li><span></span><div><strong>Última atualização</strong><p>@Model.UpdatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p></div></li>
+            </ul>
+        </section>
+
+        <section class="admin-card">
+            <div class="admin-card__head"><h3>Pagamento</h3></div>
+            <dl class="admin-info-list">
+                <div><dt>Método</dt><dd>@OrderDisplay.PaymentLabel(Model.PaymentMethod)</dd></div>
+                <div><dt>Status</dt><dd><span class="@OrderDisplay.CssClass(Model.Status)">@Model.StatusLabel</span></dd></div>
+                <div><dt>Cupom</dt><dd>@(string.IsNullOrWhiteSpace(Model.CouponCode) ? "Nenhum" : Model.CouponCode)</dd></div>
+                <div><dt>Total</dt><dd><strong>@Model.Total.ToBrl()</strong></dd></div>
+            </dl>
+        </section>
+    </aside>
+</div>

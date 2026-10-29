@@ -1,0 +1,134 @@
+@model Order
+@{
+    ViewData["Title"] = "Pedido confirmado";
+    ViewData["Description"] = "Seu pedido JLM foi confirmado com sucesso.";
+    ViewData["BodyClass"] = "page-checkout-success";
+    var itemCount = Model.Items.Sum(i => i.Quantity);
+}
+
+<section class="success-hero">
+    <div class="container success-hero__inner">
+        <div class="success-hero__copy">
+            <span class="success-hero__check"><svg class="icon"><use href="#i-check"></use></svg></span>
+            <span class="eyebrow eyebrow--light">Pedido confirmado</span>
+            <h1>Obrigado,<br /><em>@(Model.CustomerName.Split(' ').FirstOrDefault()).</em></h1>
+            <p>
+                Seu pedido <strong>@Model.OrderNumber</strong> foi registrado com sucesso.
+                Enviamos a confirmação para <strong>@Model.Email</strong>.
+            </p>
+            <div class="success-hero__actions">
+                <a class="btn btn--gold" href="/conta/pedidos/@Model.OrderNumber">Acompanhar pedido <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                <a class="btn btn--ghost-light" href="/catalogo">Continuar comprando</a>
+            </div>
+        </div>
+        <div class="success-hero__mascot">
+            <img src="~/images/brand/joao-laumir.png" alt="João Laumir aprovando seu pedido" />
+            <div class="success-hero__seal">
+                <svg class="icon"><use href="#i-check"></use></svg>
+                <span>Pedido<br />confirmado</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section success">
+    <div class="container">
+        <div class="success__layout">
+            <div class="success__main">
+                <div class="success-card">
+                    <div class="success-card__head">
+                        <div>
+                            <span class="eyebrow">Resumo</span>
+                            <h2>Itens do pedido</h2>
+                        </div>
+                        <span class="@OrderDisplay.CssClass(Model.Status)">@Model.StatusLabel</span>
+                    </div>
+                    <div class="success-items">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="success-item">
+                                <img src="@item.ProductImageUrl" alt="@item.ProductName" />
+                                <div>
+                                    <strong>@item.ProductName</strong>
+                                    <span>@item.Size @(string.IsNullOrWhiteSpace(item.Color) ? "" : $"· {item.Color}") · @item.Quantity un.</span>
+                                </div>
+                                <em>@item.LineTotal.ToBrl()</em>
+                            </div>
+                        }
+                    </div>
+                    <dl class="summary-lines">
+                        <div><dt>Subtotal</dt><dd>@Model.Subtotal.ToBrl()</dd></div>
+                        <div><dt>Frete</dt><dd>@(Model.ShippingCost == 0 ? "Grátis" : Model.ShippingCost.ToBrl())</dd></div>
+                        @if (Model.Discount > 0)
+                        {
+                            <div class="summary-lines__discount"><dt>Desconto @Model.CouponCode</dt><dd>− @Model.Discount.ToBrl()</dd></div>
+                        }
+                        <div class="summary-lines__total"><dt>Total</dt><dd>@Model.Total.ToBrl()</dd></div>
+                    </dl>
+                </div>
+
+                <div class="success-card">
+                    <div class="success-card__head">
+                        <div>
+                            <span class="eyebrow">Próximos passos</span>
+                            <h2>O que acontece agora</h2>
+                        </div>
+                    </div>
+                    <ol class="success-steps">
+                        <li class="is-done">
+                            <span><svg class="icon"><use href="#i-check"></use></svg></span>
+                            <div><strong>Pedido recebido</strong><p>Registramos sua compra e reservamos as peças.</p></div>
+                        </li>
+                        <li>
+                            <span>2</span>
+                            <div><strong>Confirmação do pagamento</strong><p>@(Model.PaymentMethod == PaymentMethod.Pix ? "O QR Code Pix está disponível na sua conta. A confirmação é imediata." : Model.PaymentMethod == PaymentMethod.Boleto ? "O boleto será enviado ao seu e-mail e compensa em até 2 dias úteis." : "A análise do cartão leva poucos minutos.")</p></div>
+                        </li>
+                        <li>
+                            <span>3</span>
+                            <div><strong>Preparação e envio</strong><p>Em até 24h úteis, sua peça é embalada e enviada com rastreio.</p></div>
+                        </li>
+                        <li>
+                            <span>4</span>
+                            <div><strong>Entrega</strong><p>@OrderDisplay.ShippingLabel(Model.ShippingMethod). Você receberá o código de rastreio por e-mail.</p></div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <aside class="success__aside">
+                <div class="success-card success-card--info">
+                    <h3>Dados do pedido</h3>
+                    <dl class="info-list">
+                        <div><dt>Pedido</dt><dd>@Model.OrderNumber</dd></div>
+                        <div><dt>Data</dt><dd>@Model.CreatedAt.ToLocalTime().ToShortDate()</dd></div>
+                        <div><dt>Pagamento</dt><dd>@OrderDisplay.PaymentLabel(Model.PaymentMethod)</dd></div>
+                        <div><dt>Entrega</dt><dd>@OrderDisplay.ShippingLabel(Model.ShippingMethod)</dd></div>
+                    </dl>
+                </div>
+
+                <div class="success-card success-card--info">
+                    <h3>Entrega</h3>
+                    <address>
+                        <strong>@Model.CustomerName</strong><br />
+                        @Model.ShippingAddress, @Model.ShippingNumber<br />
+                        @if (!string.IsNullOrWhiteSpace(Model.ShippingComplement))
+                        {
+                            <text>@Model.ShippingComplement<br /></text>
+                        }
+                        @Model.ShippingNeighborhood<br />
+                        @Model.ShippingCity — @Model.ShippingState<br />
+                        CEP @Model.ShippingZipCode
+                    </address>
+                    <p class="info-list__contact"><svg class="icon"><use href="#i-mail"></use></svg> @Model.Email</p>
+                    <p class="info-list__contact"><svg class="icon"><use href="#i-phone"></use></svg> @Model.Phone</p>
+                </div>
+
+                <div class="success-card success-card--mascot">
+                    <img src="~/images/brand/joao-laumir.png" alt="João Laumir" loading="lazy" />
+                    <p>“Boa escolha. Agora é só esperar — e usar com intenção.”</p>
+                    <strong>João Laumir</strong>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>

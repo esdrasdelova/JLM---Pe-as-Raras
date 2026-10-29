@@ -1,0 +1,107 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Editar dados";
+    ViewData["Description"] = "Atualize seus dados de contato e endereço de entrega.";
+    ViewData["BodyClass"] = "page-account";
+}
+
+<section class="page-intro page-intro--small">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><a href="/conta">Minha conta</a><span>/</span><span aria-current="page">Editar dados</span>
+            </nav>
+            <span class="eyebrow">Cadastro</span>
+            <h1>Editar <em>dados.</em></h1>
+        </div>
+    </div>
+</section>
+
+<section class="section account">
+    <div class="container account__layout">
+        @await Html.PartialAsync("_AccountNav")
+
+        <div class="account__content">
+            <form action="/conta/editar" method="post" class="account-form">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="account-section">
+                    <div class="account-section__head">
+                        <div><span class="eyebrow">Identificação</span><h2>Dados pessoais</h2></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field field--full">
+                            <label asp-for="FullName">Nome completo</label>
+                            <input asp-for="FullName" autocomplete="name" />
+                            <span asp-validation-for="FullName" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="Email">E-mail</label>
+                            <input asp-for="Email" type="email" autocomplete="email" />
+                            <span asp-validation-for="Email" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="Phone">Telefone</label>
+                            <input asp-for="Phone" type="tel" autocomplete="tel" data-mask-phone />
+                            <span asp-validation-for="Phone" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="Cpf">CPF</label>
+                            <input asp-for="Cpf" inputmode="numeric" data-mask-cpf />
+                            <span asp-validation-for="Cpf" class="field-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="account-section">
+                    <div class="account-section__head">
+                        <div><span class="eyebrow">Entrega</span><h2>Endereço principal</h2></div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label asp-for="ZipCode">CEP</label>
+                            <input asp-for="ZipCode" inputmode="numeric" autocomplete="postal-code" data-mask-cep />
+                            <span asp-validation-for="ZipCode" class="field-error"></span>
+                        </div>
+                        <div class="field field--grow">
+                            <label asp-for="Address">Endereço</label>
+                            <input asp-for="Address" autocomplete="address-line1" />
+                            <span asp-validation-for="Address" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="AddressNumber">Número</label>
+                            <input asp-for="AddressNumber" inputmode="numeric" />
+                            <span asp-validation-for="AddressNumber" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="Complement">Complemento</label>
+                            <input asp-for="Complement" />
+                            <span asp-validation-for="Complement" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="Neighborhood">Bairro</label>
+                            <input asp-for="Neighborhood" autocomplete="address-level3" />
+                            <span asp-validation-for="Neighborhood" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="City">Cidade</label>
+                            <input asp-for="City" autocomplete="address-level2" />
+                            <span asp-validation-for="City" class="field-error"></span>
+                        </div>
+                        <div class="field">
+                            <label asp-for="State">Estado</label>
+                            <input asp-for="State" maxlength="2" placeholder="SP" />
+                            <span asp-validation-for="State" class="field-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="account-form__actions">
+                    <button type="submit" class="btn btn--gold">Salvar alterações <svg class="icon"><use href="#i-check"></use></svg></button>
+                    <a class="btn btn--ghost" href="/conta">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

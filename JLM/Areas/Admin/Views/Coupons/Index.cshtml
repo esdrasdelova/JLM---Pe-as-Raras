@@ -1,0 +1,73 @@
+@model IEnumerable<Coupon>
+@{
+    ViewData["Title"] = "Cupons";
+    var now = DateTime.UtcNow;
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Vendas</span>
+        <h2>Cupons</h2>
+        <p>Crie campanhas de desconto com regras de validade, mínimo e limite de uso.</p>
+    </div>
+    <a class="admin-btn admin-btn--gold" href="/admin/coupons/create">
+        <svg class="icon"><use href="#i-plus"></use></svg> Novo cupom
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <section class="admin-card">
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-ticket"></use></svg>
+            <h3>Nenhum cupom criado</h3>
+            <p>Ofereça um incentivo para a primeira compra ou reative clientes.</p>
+            <a class="admin-btn admin-btn--gold" href="/admin/coupons/create">Criar cupom</a>
+        </div>
+    </section>
+}
+else
+{
+    <div class="coupon-grid">
+        @foreach (var coupon in Model)
+        {
+            var expired = coupon.EndsAt.HasValue && coupon.EndsAt < now;
+            var exhausted = coupon.MaxUses.HasValue && coupon.UsedCount >= coupon.MaxUses;
+            <article class="coupon-admin-card @(coupon.IsActive && !expired && !exhausted ? "" : "is-inactive")">
+                <div class="coupon-admin-card__top">
+                    <div>
+                        <span class="admin-eyebrow">@(coupon.DiscountType == DiscountType.Percentage ? "Percentual" : "Valor fixo")</span>
+                        <strong class="coupon-admin-card__code">@coupon.Code</strong>
+                    </div>
+                    <span class="admin-status @(coupon.IsActive && !expired && !exhausted ? "admin-status--ok" : "admin-status--off")">
+                        <i></i>@(expired ? "Expirado" : exhausted ? "Esgotado" : coupon.IsActive ? "Ativo" : "Inativo")
+                    </span>
+                </div>
+                <p class="coupon-admin-card__value">
+                    @(coupon.DiscountType == DiscountType.Percentage ? $"{coupon.Value:0.##}% OFF" : $"{coupon.Value.ToBrl()} OFF")
+                </p>
+                <p class="coupon-admin-card__desc">@(string.IsNullOrWhiteSpace(coupon.Description) ? "Sem descrição." : coupon.Description)</p>
+                <dl class="coupon-admin-card__meta">
+                    <div><dt>Pedido mínimo</dt><dd>@(coupon.MinimumOrder <= 0 ? "Sem mínimo" : coupon.MinimumOrder.ToBrl())</dd></div>
+                    <div><dt>Usos</dt><dd>@coupon.UsedCount@(coupon.MaxUses.HasValue ? $" / {coupon.MaxUses}" : " / ilimitado")</dd></div>
+                    <div><dt>Validade</dt><dd>@(coupon.StartsAt?.ToLocalTime().ToString("dd/MM/yy") ?? "—") até @(coupon.EndsAt?.ToLocalTime().ToString("dd/MM/yy") ?? "sem fim")</dd></div>
+                </dl>
+                <div class="coupon-admin-card__actions">
+                    <a class="admin-btn admin-btn--ghost admin-btn--sm" href="/admin/coupons/edit/@coupon.Id"><svg class="icon"><use href="#i-edit"></use></svg> Editar</a>
+                    <form action="/admin/coupons/toggle/@coupon.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-btn admin-btn--dark admin-btn--sm" type="submit">
+                            <svg class="icon"><use href="#i-@(coupon.IsActive ? "eye-off" : "eye")"></use></svg> @(coupon.IsActive ? "Desativar" : "Ativar")
+                        </button>
+                    </form>
+                    <form action="/admin/coupons/delete/@coupon.Id" method="post" data-confirm="Excluir definitivamente o cupom @coupon.Code?">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-icon-btn admin-icon-btn--danger" type="submit" aria-label="Excluir cupom" title="Excluir">
+                            <svg class="icon"><use href="#i-trash"></use></svg>
+                        </button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+}

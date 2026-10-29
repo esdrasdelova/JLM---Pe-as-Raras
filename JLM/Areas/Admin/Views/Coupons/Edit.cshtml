@@ -1,0 +1,15 @@
+@model Coupon
+@{
+    ViewData["Title"] = "Editar cupom";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Vendas / Cupons</span>
+        <h2>Editar cupom</h2>
+        <p>Ajuste as regras do cupom @Model.Code.</p>
+    </div>
+    <a class="admin-btn admin-btn--ghost" href="/admin/coupons"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+</div>
+
+@await Html.PartialAsync("_CouponForm", Model)

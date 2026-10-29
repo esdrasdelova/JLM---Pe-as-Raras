@@ -1,0 +1,177 @@
+@model ContactViewModel
+@{
+    ViewData["Title"] = "Contato";
+    ViewData["Description"] = "Fale com a JLM: dúvidas sobre produtos, tamanhos, pedidos, trocas e parcerias.";
+    ViewData["BodyClass"] = "page-contact";
+    var subjects = new[]
+    {
+        "Dúvida sobre um produto",
+        "Tamanhos e medidas",
+        "Meu pedido",
+        "Troca ou devolução",
+        "Parceria / imprensa",
+        "Outro assunto"
+    };
+}
+
+<section class="contact-hero">
+    <div class="container contact-hero__inner">
+        <div class="contact-hero__copy">
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><span aria-current="page">Contato</span>
+            </nav>
+            <span class="eyebrow">Atendimento JLM</span>
+            <h1>Fale com quem<br /><em>entende de presença.</em></h1>
+            <p>Dúvidas de tamanho, composição, pedido ou parceria? Nosso time responde em até 1 dia útil — sem robôs, sem enrolação.</p>
+
+            <div class="contact-channels">
+                <a href="mailto:contato@jlmstore.com.br">
+                    <svg class="icon"><use href="#i-mail"></use></svg>
+                    <div><span>E-mail</span><strong>contato@jlmstore.com.br</strong></div>
+                    <svg class="icon"><use href="#i-arrow-up-right"></use></svg>
+                </a>
+                <a href="https://wa.me/5511999990000" target="_blank" rel="noopener">
+                    <svg class="icon"><use href="#i-whatsapp"></use></svg>
+                    <div><span>WhatsApp</span><strong>(11) 99999-0000</strong></div>
+                    <svg class="icon"><use href="#i-arrow-up-right"></use></svg>
+                </a>
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener">
+                    <svg class="icon"><use href="#i-instagram"></use></svg>
+                    <div><span>Instagram</span><strong>@@jlmstore</strong></div>
+                    <svg class="icon"><use href="#i-arrow-up-right"></use></svg>
+                </a>
+            </div>
+
+            <div class="contact-hours">
+                <svg class="icon"><use href="#i-clock"></use></svg>
+                <div>
+                    <strong>Segunda a sexta, 9h às 18h</strong>
+                    <span>Sábado, 9h às 13h · Horário de Brasília</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-card">
+            <div class="contact-form-card__head">
+                <span class="eyebrow">Escreva para nós</span>
+                <h2>Como podemos ajudar?</h2>
+                <p>Campos com <span>*</span> são obrigatórios.</p>
+            </div>
+
+            <form action="/contato" method="post" data-contact-form>
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="field">
+                    <label asp-for="Name">Nome completo <span>*</span></label>
+                    <input asp-for="Name" autocomplete="name" placeholder="Seu nome" />
+                    <span asp-validation-for="Name" class="field-error"></span>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label asp-for="Email">E-mail <span>*</span></label>
+                        <input asp-for="Email" type="email" autocomplete="email" placeholder="voce@email.com" />
+                        <span asp-validation-for="Email" class="field-error"></span>
+                    </div>
+                    <div class="field">
+                        <label asp-for="Phone">Telefone</label>
+                        <input asp-for="Phone" type="tel" autocomplete="tel" placeholder="(11) 99999-9999" data-mask-phone />
+                        <span asp-validation-for="Phone" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label asp-for="Subject">Assunto <span>*</span></label>
+                    <div class="select-wrap">
+                        <select asp-for="Subject">
+                            <option value="">Selecione o assunto</option>
+                            @foreach (var subject in subjects)
+                            {
+                                <option value="@subject">@subject</option>
+                            }
+                        </select>
+                        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                    </div>
+                    <span asp-validation-for="Subject" class="field-error"></span>
+                </div>
+
+                <div class="field">
+                    <label asp-for="Message">Mensagem <span>*</span></label>
+                    <textarea asp-for="Message" rows="5" maxlength="2000" placeholder="Conte o que você precisa. Se for sobre um pedido, inclua o número."></textarea>
+                    <span asp-validation-for="Message" class="field-error"></span>
+                    <span class="field-hint"><span data-char-count>0</span>/2000</span>
+                </div>
+
+                <button type="submit" class="btn btn--gold btn--block btn--lg">
+                    Enviar mensagem <svg class="icon"><use href="#i-send"></use></svg>
+                </button>
+
+                <p class="contact-form-card__note"><svg class="icon"><use href="#i-lock"></use></svg> Seus dados são usados apenas para responder esta solicitação.</p>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section class="section contact-faq">
+    <div class="container contact-faq__inner">
+        <div class="contact-faq__copy">
+            <span class="eyebrow">Antes de escrever</span>
+            <h2 class="section-title">Talvez a resposta<br />esteja <em>aqui.</em></h2>
+            <p class="section-sub">As dúvidas mais frequentes sobre pedidos, tamanhos, joias e prazos.</p>
+            <div class="contact-faq__mascot">
+                <img src="~/images/brand/joao-laumir.png" alt="João Laumir" loading="lazy" />
+                <p>“Se não estiver, me chama. Eu respondo.”<br /><strong>— João Laumir</strong></p>
+            </div>
+        </div>
+        <div class="accordion accordion--faq" data-accordion>
+            <details open>
+                <summary>Como escolho meu tamanho? <svg class="icon"><use href="#i-chevron-down"></use></svg></summary>
+                <div class="accordion__body"><p>Nossas peças de vestuário seguem a tabela brasileira. Camisetas oversized têm caimento amplo — se preferir mais ajustado, escolha um tamanho abaixo. Em caso de dúvida, envie sua altura, peso e circunferência do peito pelo WhatsApp que indicamos o tamanho ideal.</p></div>
+            </details>
+            <details>
+                <summary>As joias têm certificado? <svg class="icon"><use href="#i-chevron-down"></use></svg></summary>
+                <div class="accordion__body"><p>Sim. Todas as peças em ouro 18k e prata 925 acompanham certificado de autenticidade, estojo JLM e flanela de polimento.</p></div>
+            </details>
+            <details>
+                <summary>Qual é o prazo de entrega? <svg class="icon"><use href="#i-chevron-down"></use></svg></summary>
+                <div class="accordion__body"><p>Pedidos confirmados até 14h são despachados no mesmo dia útil. Entrega padrão: 3 a 7 dias úteis. Expressa: 1 a 3 dias úteis. O rastreio é enviado por e-mail.</p></div>
+            </details>
+            <details>
+                <summary>Posso trocar ou devolver? <svg class="icon"><use href="#i-chevron-down"></use></svg></summary>
+                <div class="accordion__body"><p>Sim, em até 30 dias corridos após o recebimento, desde que a peça esteja sem uso e com a etiqueta. Joias precisam estar com o lacre original. Solicite pelo WhatsApp ou pela sua conta.</p></div>
+            </details>
+            <details>
+                <summary>Vocês emitem nota fiscal? <svg class="icon"><use href="#i-chevron-down"></use></svg></summary>
+                <div class="accordion__body"><p>Todos os pedidos são emitidos com nota fiscal eletrônica, enviada para o e-mail cadastrado junto com a confirmação do envio.</p></div>
+            </details>
+            <details>
+                <summary>Fazem peças sob medida? <svg class="icon"><use href="#i-chevron-down"></use></svg></summary>
+                <div class="accordion__body"><p>A Edição Laumir inclui ajustes de barra e cintura gratuitos em alfaiataria. Para projetos totalmente sob medida, fale com nosso time pelo e-mail de parcerias.</p></div>
+            </details>
+        </div>
+    </div>
+</section>
+
+<section class="contact-stores">
+    <div class="container contact-stores__inner">
+        <div>
+            <span class="eyebrow eyebrow--light">Showroom</span>
+            <h2>Venha sentir<br /><em>de perto.</em></h2>
+            <p>Atendimento com hora marcada em São Paulo. Café, espelho de corpo inteiro e um consultor só para você.</p>
+            <a class="btn btn--gold" href="https://wa.me/5511999990000" target="_blank" rel="noopener">Agendar visita <svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+        </div>
+        <div class="contact-stores__map">
+            <div class="map-placeholder" aria-label="Mapa ilustrativo do showroom JLM em São Paulo">
+                <span class="map-placeholder__grid" aria-hidden="true"></span>
+                <span class="map-placeholder__pin"><svg class="icon"><use href="#i-pin"></use></svg></span>
+                <div class="map-placeholder__card">
+                    <strong>JLM Showroom</strong>
+                    <span>Rua dos Pinheiros, 842 — Pinheiros</span>
+                    <span>São Paulo/SP · 05422-001</span>
+                    <a href="https://maps.google.com/?q=Rua+dos+Pinheiros+842+Sao+Paulo" target="_blank" rel="noopener">Abrir no mapa <svg class="icon"><use href="#i-arrow-up-right"></use></svg></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

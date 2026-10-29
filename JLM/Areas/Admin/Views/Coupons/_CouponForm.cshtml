@@ -1,0 +1,103 @@
+@model Coupon
+@{
+    var isEdit = Model.Id > 0;
+}
+
+<form class="admin-form" asp-area="Admin" asp-controller="Coupons" asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+    <div class="admin-form__layout">
+        <div class="admin-form__main">
+            <section class="admin-card">
+                <div class="admin-card__head">
+                    <div>
+                        <span class="admin-eyebrow">Campanha</span>
+                        <h3>Dados do cupom</h3>
+                    </div>
+                </div>
+                <div class="admin-fields">
+                    <div class="admin-field">
+                        <label asp-for="Code">Código do cupom <span>*</span></label>
+                        <input asp-for="Code" placeholder="EX.: JLM10" style="text-transform:uppercase" />
+                        <span class="admin-hint">Sem espaços. O código é convertido para maiúsculas.</span>
+                        <span asp-validation-for="Code" class="field-error"></span>
+                    </div>
+                    <div class="admin-field">
+                        <label asp-for="DiscountType">Tipo de desconto <span>*</span></label>
+                        <div class="admin-select">
+                            <select asp-for="DiscountType">
+                                <option value="Percentage">Percentual (%)</option>
+                                <option value="Fixed">Valor fixo (R$)</option>
+                            </select>
+                            <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                        </div>
+                        <span asp-validation-for="DiscountType" class="field-error"></span>
+                    </div>
+                    <div class="admin-field">
+                        <label asp-for="Value">Valor do desconto <span>*</span></label>
+                        <input asp-for="Value" type="number" step="0.01" min="0" placeholder="10" />
+                        <span asp-validation-for="Value" class="field-error"></span>
+                    </div>
+                    <div class="admin-field">
+                        <label asp-for="MinimumOrder">Pedido mínimo (R$)</label>
+                        <input asp-for="MinimumOrder" type="number" step="0.01" min="0" placeholder="0,00" />
+                        <span asp-validation-for="MinimumOrder" class="field-error"></span>
+                    </div>
+                    <div class="admin-field admin-field--full">
+                        <label asp-for="Description">Descrição exibida no carrinho</label>
+                        <input asp-for="Description" placeholder="Ex.: 10% off na primeira compra" />
+                        <span asp-validation-for="Description" class="field-error"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <aside class="admin-form__side">
+            <section class="admin-card">
+                <div class="admin-card__head"><h3>Validade & limite</h3></div>
+                <div class="admin-field">
+                    <label for="StartsAt">Início da validade</label>
+                    <input id="StartsAt" type="datetime-local" name="StartsAt" value="@(Model.StartsAt?.ToString("yyyy-MM-ddTHH:mm"))" />
+                    <span asp-validation-for="StartsAt" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label for="EndsAt">Fim da validade</label>
+                    <input id="EndsAt" type="datetime-local" name="EndsAt" value="@(Model.EndsAt?.ToString("yyyy-MM-ddTHH:mm"))" />
+                    <span asp-validation-for="EndsAt" class="field-error"></span>
+                </div>
+                <div class="admin-field">
+                    <label asp-for="MaxUses">Limite de usos</label>
+                    <input asp-for="MaxUses" type="number" min="1" placeholder="Deixe vazio para ilimitado" />
+                    <span asp-validation-for="MaxUses" class="field-error"></span>
+                </div>
+                <div class="admin-checks">
+                    <label class="admin-check">
+                        <input asp-for="IsActive" />
+                        <span><strong>Ativo</strong><small>Permite uso imediato no checkout.</small></span>
+                    </label>
+                </div>
+            </section>
+
+            @if (isEdit)
+            {
+                <section class="admin-card">
+                    <div class="admin-card__head"><h3>Uso</h3></div>
+                    <dl class="admin-info-list">
+                        <div><dt>Utilizações</dt><dd>@Model.UsedCount</dd></div>
+                        <div><dt>Criado em</dt><dd>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd></div>
+                    </dl>
+                </section>
+            }
+        </aside>
+    </div>
+
+    <div class="admin-form__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/coupons">Cancelar</a>
+        <button class="admin-btn admin-btn--gold" type="submit">
+            <svg class="icon"><use href="#i-check"></use></svg> @(isEdit ? "Salvar alterações" : "Criar cupom")
+        </button>
+    </div>
+</form>

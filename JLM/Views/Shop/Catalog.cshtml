@@ -1,0 +1,229 @@
+@model CatalogViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Description ?? "Explore a coleção JLM de roupas, joias e acessórios masculinos premium.";
+    ViewData["BodyClass"] = "page-catalog";
+
+    var currentUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var sortOptions = new (string Value, string Label)[]
+    {
+        ("relevance", "Curadoria JLM"),
+        ("newest", "Lançamentos"),
+        ("price-asc", "Menor preço"),
+        ("price-desc", "Maior preço"),
+        ("rating", "Melhor avaliados"),
+        ("name", "A–Z")
+    };
+    var activeFilters = new List<(string Label, string Url)>();
+    if (!string.IsNullOrWhiteSpace(Model.Search))
+        activeFilters.Add(($"Busca: {Model.Search}", $"/busca"));
+    if (!string.IsNullOrWhiteSpace(Model.CollectionSlug))
+        activeFilters.Add(($"Coleção: {Model.ActiveCollectionName}", $"/colecoes/{Model.CollectionSlug}"));
+    if (!string.IsNullOrWhiteSpace(Model.Size))
+        activeFilters.Add(($"Tamanho: {Model.Size}", $"{Context.Request.Path}"));
+    if (Model.MinPrice.HasValue || Model.MaxPrice.HasValue)
+        activeFilters.Add(("Faixa de preço", $"{Context.Request.Path}"));
+}
+
+<section class="catalog-hero">
+    <div class="catalog-hero__media">
+        <img src="@(Model.HeroImage ?? "/images/products/blazer-premium-gold-line.svg")" alt="" aria-hidden="true" />
+        <span class="catalog-hero__shade" aria-hidden="true"></span>
+    </div>
+    <div class="container catalog-hero__inner">
+        <nav class="breadcrumbs" aria-label="Trilha de navegação">
+            <a href="/">Início</a><span>/</span><span aria-current="page">@Model.Title</span>
+        </nav>
+        <span class="eyebrow eyebrow--light">@Model.Eyebrow</span>
+        <h1>@Model.Title</h1>
+        <p>@Model.Description</p>
+        <div class="catalog-hero__meta">
+            <span><strong>@Model.TotalCount</strong> peças encontradas</span>
+            <span class="catalog-hero__tag"><svg class="icon"><use href="#i-sparkle"></use></svg> Curadoria JLM</span>
+        </div>
+    </div>
+</section>
+
+<section class="catalog">
+    <div class="container">
+        <div class="catalog__toolbar">
+            <button class="btn btn--filter" type="button" data-filters-toggle aria-expanded="false" aria-controls="catalog-filters">
+                <svg class="icon"><use href="#i-filter"></use></svg> Filtrar
+            </button>
+            <div class="catalog__quick-links">
+                <a class="@(string.IsNullOrWhiteSpace(Model.CategorySlug) && string.IsNullOrWhiteSpace(Model.CollectionSlug) ? "is-active" : "")" href="/catalogo">Tudo</a>
+                @foreach (var category in Model.Categories)
+                {
+                    <a class="@(Model.CategorySlug == category.Slug ? "is-active" : "")" href="/@category.Slug">@category.Name</a>
+                }
+            </div>
+            <form class="catalog__sort" method="get" action="@Context.Request.Path" data-sort-form>
+                @foreach (var item in Context.Request.Query)
+                {
+                    if (!string.Equals(item.Key, "ordenar", StringComparison.OrdinalIgnoreCase) && !string.Equals(item.Key, "pagina", StringComparison.OrdinalIgnoreCase))
+                    {
+                        @foreach (var value in item.Value)
+                        {
+                            <input type="hidden" name="@item.Key" value="@value" />
+                        }
+                    }
+                }
+                <label for="sort">Ordenar por</label>
+                <div class="select-wrap">
+                    <select id="sort" name="ordenar" data-auto-submit>
+                        @foreach (var option in sortOptions)
+                        {
+                            <option value="@option.Value" selected="@(Model.Sort == option.Value)">@option.Label</option>
+                        }
+                    </select>
+                    <svg class="icon"><use href="#i-chevron-down"></use></svg>
+                </div>
+            </form>
+        </div>
+
+        @if (activeFilters.Count > 0 || Model.HasFilters)
+        {
+            <div class="active-filters">
+                <span>Filtros ativos:</span>
+                @foreach (var filter in activeFilters)
+                {
+                    <a href="@filter.Url">@filter.Label <svg class="icon"><use href="#i-close"></use></svg></a>
+                }
+                @if (Model.HasFilters)
+                {
+                    <a class="active-filters__clear" href="@Context.Request.Path">Limpar tudo</a>
+                }
+            </div>
+        }
+
+        <div class="catalog__layout">
+            <aside class="catalog-filters" id="catalog-filters" data-filters-panel>
+                <div class="catalog-filters__head">
+                    <h2>Refinar</h2>
+                    <button class="icon-btn" type="button" data-filters-close aria-label="Fechar filtros">
+                        <svg class="icon"><use href="#i-close"></use></svg>
+                    </button>
+                </div>
+
+                <form method="get" action="@Context.Request.Path" class="filter-form">
+                    <div class="filter-group">
+                        <h3>Buscar</h3>
+                        <div class="filter-search">
+                            <input type="search" name="q" value="@Model.Search" placeholder="Nome ou detalhe" aria-label="Buscar na coleção" />
+                            <button type="submit" aria-label="Buscar"><svg class="icon"><use href="#i-search"></use></svg></button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Categoria</h3>
+                        <div class="filter-links">
+                            <a class="@(string.IsNullOrWhiteSpace(Model.CategorySlug) ? "is-active" : "")" href="/catalogo">Todas as peças</a>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <a class="@(Model.CategorySlug == category.Slug ? "is-active" : "")" href="/@category.Slug">
+                                    @category.Name
+                                    <span>@(category.Products?.Count(p => p.IsActive) ?? 0)</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Coleção</h3>
+                        <div class="filter-links">
+                            <a class="@(string.IsNullOrWhiteSpace(Model.CollectionSlug) ? "is-active" : "")" href="@Context.Request.Path">Todas</a>
+                            @foreach (var collection in Model.Collections)
+                            {
+                                <a class="@(Model.CollectionSlug == collection.Slug ? "is-active" : "")" href="/colecoes/@collection.Slug">@collection.Name</a>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Faixa de preço</h3>
+                        <div class="price-range">
+                            <label>
+                                <span>De</span>
+                                <input type="number" name="precoMin" min="0" step="10" value="@Model.MinPrice" placeholder="0" />
+                            </label>
+                            <span class="price-range__dash">—</span>
+                            <label>
+                                <span>Até</span>
+                                <input type="number" name="precoMax" min="0" step="10" value="@Model.MaxPrice" placeholder="5000" />
+                            </label>
+                        </div>
+                        <div class="price-presets">
+                            <button type="submit" name="precoMax" value="200" class="chip">Até R$ 200</button>
+                            <button type="submit" name="precoMax" value="500" class="chip">Até R$ 500</button>
+                            <button type="submit" name="precoMax" value="1500" class="chip">Até R$ 1.500</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <h3>Tamanho</h3>
+                        <div class="size-filter">
+                            @foreach (var size in Model.AvailableSizes)
+                            {
+                                <label class="size-filter__option">
+                                    <input type="radio" name="tamanho" value="@size" checked="@(Model.Size == size)" />
+                                    <span>@size</span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.CollectionSlug))
+                    {
+                        <input type="hidden" name="colecao" value="@Model.CollectionSlug" />
+                    }
+                    <input type="hidden" name="ordenar" value="@Model.Sort" />
+
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn--gold btn--block">Aplicar filtros</button>
+                        <a class="btn btn--ghost btn--block" href="@Context.Request.Path">Limpar</a>
+                    </div>
+                </form>
+            </aside>
+
+            <div class="catalog__results">
+                @if (Model.Products.Count == 0)
+                {
+                    <div class="empty-state">
+                        <div class="empty-state__mascot">
+                            <img src="~/images/brand/joao-laumir.png" alt="João Laumir" />
+                        </div>
+                        <span class="eyebrow">Nada por aqui</span>
+                        <h2>O João não encontrou essa peça.</h2>
+                        <p>Tente outro termo, remova alguns filtros ou explore a coleção completa. Temos certeza de que existe uma peça esperando por você.</p>
+                        <div class="empty-state__actions">
+                            <a class="btn btn--gold" href="/catalogo">Ver catálogo completo</a>
+                            <a class="btn btn--ghost" href="/contato">Falar com a JLM</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="product-grid product-grid--three">
+                        @foreach (var product in Model.Products)
+                        {
+                            @await Html.PartialAsync("_ProductCard", product)
+                        }
+                    </div>
+
+                    @await Html.PartialAsync("_Pagination", new PaginationViewModel { Page = Model.Page, TotalPages = Model.TotalPages })
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="catalog-help">
+    <div class="container catalog-help__inner">
+        <div>
+            <span class="eyebrow eyebrow--light">Precisa de ajuda?</span>
+            <h2>Um consultor JLM escolhe com você.</h2>
+            <p>Dúvida de tamanho, composição ou combinação? Nosso atendimento responde em até 1 dia útil.</p>
+        </div>
+        <a class="btn btn--gold" href="/contato">Falar com um consultor <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+    </div>
+</section>

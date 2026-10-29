@@ -1,0 +1,142 @@
+@model User
+@{
+    ViewData["Title"] = "Cliente";
+    var validOrders = Model.Orders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
+    var totalSpent = validOrders.Sum(o => o.Total);
+    var averageTicket = validOrders.Count > 0 ? totalSpent / validOrders.Count : 0m;
+    var lastOrder = Model.Orders.OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Relacionamento / Clientes</span>
+        <h2>@Model.FullName</h2>
+        <p>Cliente desde @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy") · @Model.Email</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="mailto:@Model.Email"><svg class="icon"><use href="#i-mail"></use></svg> Enviar e-mail</a>
+        <a class="admin-btn admin-btn--ghost" href="/admin/customers"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+    </div>
+</div>
+
+<div class="admin-profile-head">
+    <span class="admin-profile-avatar">@Model.FullName.Initials()</span>
+    <div class="admin-profile-head__body">
+        <strong>@Model.FullName</strong>
+        <span>@Model.Email</span>
+        <div>
+            <span class="admin-status @(Model.IsActive ? "admin-status--ok" : "admin-status--off")"><i></i>@(Model.IsActive ? "Conta ativa" : "Conta desativada")</span>
+            <span class="admin-status admin-status--gold"><i></i>Cliente JLM</span>
+        </div>
+    </div>
+    <form action="/admin/customers/toggleactive/@Model.Id" method="post" data-confirm="@(Model.IsActive ? "Desativar o acesso deste cliente?" : "Reativar o acesso deste cliente?")">
+        @Html.AntiForgeryToken()
+        <button class="admin-btn @(Model.IsActive ? "admin-btn--danger-ghost" : "admin-btn--gold")" type="submit">
+            <svg class="icon"><use href="#i-@(Model.IsActive ? "lock" : "check")"></use></svg>
+            @(Model.IsActive ? "Desativar conta" : "Reativar conta")
+        </button>
+    </form>
+</div>
+
+<div class="stat-grid stat-grid--four">
+    <article class="stat-card">
+        <span class="stat-card__icon"><svg class="icon"><use href="#i-bag"></use></svg></span>
+        <strong>@validOrders.Count</strong>
+        <p>Pedidos válidos</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__icon"><svg class="icon"><use href="#i-chart"></use></svg></span>
+        <strong>@totalSpent.ToBrl()</strong>
+        <p>Total investido</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__icon"><svg class="icon"><use href="#i-ticket"></use></svg></span>
+        <strong>@averageTicket.ToBrl()</strong>
+        <p>Ticket médio</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-card__icon"><svg class="icon"><use href="#i-calendar"></use></svg></span>
+        <strong>@(lastOrder is null ? "—" : lastOrder.CreatedAt.ToLocalTime().ToString("dd/MM/yy"))</strong>
+        <p>Última compra</p>
+    </article>
+</div>
+
+<div class="admin-grid admin-grid--2-1">
+    <section class="admin-card">
+        <div class="admin-card__head">
+            <div>
+                <span class="admin-eyebrow">Histórico</span>
+                <h3>Pedidos do cliente</h3>
+            </div>
+            <span class="admin-card__muted">@Model.Orders.Count no total</span>
+        </div>
+        @if (Model.Orders.Count == 0)
+        {
+            <div class="admin-empty">
+                <svg class="icon"><use href="#i-box"></use></svg>
+                <p>Este cliente ainda não realizou pedidos.</p>
+            </div>
+        }
+        else
+        {
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Data</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.Orders.OrderByDescending(o => o.CreatedAt))
+                        {
+                            <tr>
+                                <td><a class="admin-table__strong" href="/admin/orders/@order.OrderNumber">@order.OrderNumber</a></td>
+                                <td>@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                                <td class="admin-table__num">@order.Total.ToBrl()</td>
+                                <td><span class="@OrderDisplay.CssClass(order.Status)">@order.StatusLabel</span></td>
+                                <td><a class="admin-table__action" href="/admin/orders/@order.OrderNumber" aria-label="Ver pedido"><svg class="icon"><use href="#i-chevron-right"></use></svg></a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <aside class="admin-stack">
+        <section class="admin-card">
+            <div class="admin-card__head"><h3>Dados de contato</h3></div>
+            <dl class="admin-info-list">
+                <div><dt>E-mail</dt><dd>@Model.Email</dd></div>
+                <div><dt>Telefone</dt><dd>@(string.IsNullOrWhiteSpace(Model.Phone) ? "Não informado" : Model.Phone)</dd></div>
+                <div><dt>CPF</dt><dd>@Model.Cpf.MaskCpf()</dd></div>
+                <div><dt>Cadastro</dt><dd>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd></div>
+            </dl>
+        </section>
+
+        <section class="admin-card">
+            <div class="admin-card__head"><h3>Endereço principal</h3></div>
+            @if (string.IsNullOrWhiteSpace(Model.Address))
+            {
+                <p class="admin-muted">Endereço não informado pelo cliente.</p>
+            }
+            else
+            {
+                <address class="admin-address">
+                    @Model.Address, @Model.AddressNumber<br />
+                    @if (!string.IsNullOrWhiteSpace(Model.Complement))
+                    {
+                        <text>@Model.Complement<br /></text>
+                    }
+                    @Model.Neighborhood<br />
+                    @Model.City — @Model.State<br />
+                    CEP @Model.ZipCode
+                </address>
+            }
+        </section>
+    </aside>
+</div>

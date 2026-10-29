@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Política de Privacidade";
+    ViewData["Description"] = "Saiba como a JLM coleta, utiliza e protege seus dados pessoais.";
+    ViewData["BodyClass"] = "page-legal";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="container">
+        <nav class="breadcrumbs" aria-label="Trilha de navegação">
+            <a href="/">Início</a><span>/</span><span aria-current="page">Privacidade</span>
+        </nav>
+        <span class="eyebrow eyebrow--light">Transparência</span>
+        <h1>Política de <em>Privacidade.</em></h1>
+        <p>Última atualização: @DateTime.Now.ToLongDate().</p>
+    </div>
+</section>
+
+<section class="section legal">
+    <div class="container legal__grid">
+        <aside class="legal__nav">
+            <span class="eyebrow">Nesta página</span>
+            <a href="#dados">Dados coletados</a>
+            <a href="#uso">Como utilizamos</a>
+            <a href="#compartilhamento">Compartilhamento</a>
+            <a href="#direitos">Seus direitos</a>
+            <a href="#seguranca">Segurança</a>
+            <a href="#contato">Contato</a>
+        </aside>
+        <div class="legal__body">
+            <h2 id="dados">1. Dados que coletamos</h2>
+            <p>A JLM coleta apenas os dados necessários para processar pedidos, prestar atendimento e melhorar sua experiência de compra:</p>
+            <ul>
+                <li><strong>Dados de identificação:</strong> nome completo, CPF e data de nascimento.</li>
+                <li><strong>Dados de contato:</strong> e-mail, telefone e endereço de entrega.</li>
+                <li><strong>Dados de navegação:</strong> páginas visitadas, produtos favoritos e preferências de tamanho.</li>
+                <li><strong>Dados de pagamento:</strong> processados exclusivamente por gateways certificados. A JLM não armazena números de cartão.</li>
+            </ul>
+
+            <h2 id="uso">2. Como utilizamos seus dados</h2>
+            <p>Utilizamos as informações para: processar e entregar pedidos; emitir documentos fiscais; responder solicitações de atendimento; enviar comunicações sobre lançamentos, quando autorizado; prevenir fraudes e cumprir obrigações legais.</p>
+
+            <h2 id="compartilhamento">3. Compartilhamento</h2>
+            <p>Seus dados podem ser compartilhados com transportadoras, processadores de pagamento, emissores de nota fiscal e prestadores de tecnologia, sempre limitados à finalidade da contratação. Não vendemos dados pessoais.</p>
+
+            <h2 id="direitos">4. Seus direitos (LGPD)</h2>
+            <p>Nos termos da Lei nº 13.709/2018, você pode solicitar a confirmação, correção, portabilidade ou exclusão dos seus dados. Para exercer qualquer direito, escreva para <a href="mailto:privacidade@jlmstore.com.br">privacidade@jlmstore.com.br</a>.</p>
+
+            <h2 id="seguranca">5. Segurança</h2>
+            <p>Adotamos criptografia em trânsito, controle de acesso por perfil, senhas armazenadas com hash e monitoramento contínuo. Ainda assim, recomendamos que você não compartilhe sua senha e utilize uma senha exclusiva para a JLM.</p>
+
+            <h2 id="cookies">6. Cookies</h2>
+            <p>Utilizamos cookies essenciais para manter seu carrinho, sessão de login e preferências. Cookies analíticos são opcionais e podem ser recusados nas configurações do navegador.</p>
+
+            <h2 id="contato">7. Contato</h2>
+            <p>Encarregado de Dados (DPO): <a href="mailto:privacidade@jlmstore.com.br">privacidade@jlmstore.com.br</a><br />JLM Comércio de Vestuário Ltda. — São Paulo/SP.</p>
+
+            <div class="legal__note">
+                <svg class="icon"><use href="#i-shield"></use></svg>
+                <p>Esta política pode ser atualizada. A versão vigente estará sempre disponível nesta página, com a data da última revisão.</p>
+            </div>
+        </div>
+    </div>
+</section>

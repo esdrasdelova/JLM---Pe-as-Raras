@@ -1,0 +1,82 @@
+@model IEnumerable<Collection>
+@{
+    ViewData["Title"] = "Coleções";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo</span>
+        <h2>Coleções</h2>
+        <p>Agrupe peças por atmosfera e conte a história de cada linha JLM.</p>
+    </div>
+    <a class="admin-btn admin-btn--gold" href="/admin/collections/create">
+        <svg class="icon"><use href="#i-plus"></use></svg> Nova coleção
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <section class="admin-card">
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-gem"></use></svg>
+            <h3>Nenhuma coleção cadastrada</h3>
+            <p>Crie a primeira coleção assinada da loja.</p>
+            <a class="admin-btn admin-btn--gold" href="/admin/collections/create">Criar coleção</a>
+        </div>
+    </section>
+}
+else
+{
+    <div class="admin-collection-list">
+        @foreach (var collection in Model)
+        {
+            <article class="collection-admin-card">
+                <div class="collection-admin-card__media">
+                    @if (!string.IsNullOrWhiteSpace(collection.ImageUrl))
+                    {
+                        <img src="@collection.ImageUrl" alt="@collection.Name" />
+                    }
+                    else
+                    {
+                        <span class="category-admin-card__empty"><svg class="icon"><use href="#i-gem"></use></svg></span>
+                    }
+                </div>
+                <div class="collection-admin-card__body">
+                    <div class="collection-admin-card__top">
+                        <div>
+                            <span class="admin-eyebrow">@(collection.Tagline ?? "Coleção JLM")</span>
+                            <h3>@collection.Name</h3>
+                        </div>
+                        <div class="collection-admin-card__badges">
+                            @if (collection.IsFeatured)
+                            {
+                                <span class="admin-status admin-status--gold"><i></i>Destaque</span>
+                            }
+                            <span class="admin-status @(collection.IsActive ? "admin-status--ok" : "admin-status--off")"><i></i>@(collection.IsActive ? "Ativa" : "Inativa")</span>
+                        </div>
+                    </div>
+                    <p>@(string.IsNullOrWhiteSpace(collection.Description) ? "Sem descrição cadastrada." : collection.Description)</p>
+                    <div class="collection-admin-card__meta">
+                        <span><svg class="icon"><use href="#i-layers"></use></svg> @collection.Products.Count peças</span>
+                        <span>Ordem @collection.SortOrder</span>
+                        <span>Slug /colecoes/@collection.Slug</span>
+                    </div>
+                    <div class="admin-form__actions admin-form__actions--inline">
+                        <a class="admin-btn admin-btn--ghost admin-btn--sm" href="/colecoes/@collection.Slug" target="_blank" rel="noopener">
+                            <svg class="icon"><use href="#i-eye"></use></svg> Ver
+                        </a>
+                        <a class="admin-btn admin-btn--dark admin-btn--sm" href="/admin/collections/edit/@collection.Id">
+                            <svg class="icon"><use href="#i-edit"></use></svg> Editar
+                        </a>
+                        <form action="/admin/collections/delete/@collection.Id" method="post" data-confirm="Remover a coleção “@collection.Name”? Coleções com produtos serão apenas desativadas.">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-icon-btn admin-icon-btn--danger" type="submit" title="Excluir" aria-label="Excluir coleção">
+                                <svg class="icon"><use href="#i-trash"></use></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}

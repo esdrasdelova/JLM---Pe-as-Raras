@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" role="img" aria-label="Mochila Urban Premium">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171614"/><stop offset=".55" stop-color="#111110"/><stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="36%" r="62%">
+      <stop offset="0" stop-color="#C9A45C" stop-opacity=".18"/><stop offset=".6" stop-color="#C9A45C" stop-opacity=".04"/><stop offset="1" stop-color="#C9A45C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="fabric-hi"/><stop offset=".5" class="fabric-body"/><stop offset="1" class="fabric-body2"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".06"/></feComponentTransfer></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <rect width="900" height="1125" fill="url(#glow)"/>
+  <g fill="none" stroke="#C9A45C" opacity=".10">
+    <circle cx="450" cy="470" r="330"/><circle cx="450" cy="470" r="250"/><circle cx="450" cy="470" r="170"/>
+    <path d="M80 950 L820 190"/><path d="M60 760 L720 60"/><path d="M180 1080 L900 340"/>
+  </g>
+  <g opacity=".5" fill="#C9A45C">
+    <circle cx="118" cy="132" r="2.5"/><circle cx="782" cy="132" r="2.5"/><circle cx="118" cy="992" r="2.5"/><circle cx="782" cy="992" r="2.5"/>
+  </g>
+  <ellipse cx="450" cy="885" rx="250" ry="42" fill="#000" opacity=".55" filter="url(#soft)"/>
+  <g><style>.fabric-body{stop-color:#2c2c2c} .fabric-body2{stop-color:#181818} .fabric-hi{stop-color:#3a3936} .st{stroke:#56514a} .ink{fill:#C9A45C} .inkst{stroke:#C9A45C}</style><g stroke-linejoin="round">
+    <path d="M300 330 Q300 230 450 230 Q600 230 600 330 L640 810 Q450 866 260 810 Z" fill="url(#fabric)" stroke="#56514a" stroke-width="4"/>
+    <path d="M330 260 Q450 160 570 260" fill="none" stroke="#181818" stroke-width="34"/>
+    <path d="M330 260 Q450 160 570 260" fill="none" stroke="#56514a" stroke-width="3"/>
+    <path d="M300 500 L600 500 M300 500 L300 810 M600 500 L600 810" stroke="#56514a" opacity=".5"/>
+    <path d="M356 640 L544 640 L544 760 Q450 790 356 760 Z" fill="#181818" stroke="#56514a" stroke-width="3"/>
+    <rect x="430" y="668" width="40" height="16" rx="8" fill="#C9A45C"/>
+    <path d="M316 380 L330 400 M584 380 L570 400" stroke="#C9A45C" stroke-width="4"/>
+    <text x="450" y="590" text-anchor="middle" fill="#C9A45C" font-family="Georgia, serif" font-size="28" letter-spacing="5">JLM</text>
+  </g></g>
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <text x="450" y="1032" fill="#C9A45C" font-size="27" letter-spacing="11">JLM</text>
+    <text x="450" y="1062" fill="#8b8578" font-size="11" letter-spacing="5" font-family="Arial, sans-serif">EST. 2024 · SÃO PAULO</text>
+  </g>
+  <rect x="28" y="28" width="844" height="1069" fill="none" stroke="#C9A45C" stroke-opacity=".22"/>
+  <rect width="900" height="1125" filter="url(#grain)" opacity=".55"/>
+</svg>

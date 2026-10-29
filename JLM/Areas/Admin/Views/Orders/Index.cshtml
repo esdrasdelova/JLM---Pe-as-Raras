@@ -1,0 +1,135 @@
+@model AdminOrdersViewModel
+@{
+    ViewData["Title"] = "Pedidos";
+    var statuses = Enum.GetValues<OrderStatus>();
+
+    string PageUrl(int target)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(Model.Search)) query.Add($"q={Uri.EscapeDataString(Model.Search)}");
+        if (Model.Status.HasValue) query.Add($"status={Model.Status}");
+        query.Add($"page={target}");
+        return $"/admin/orders?{string.Join("&", query)}";
+    }
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Vendas</span>
+        <h2>Pedidos</h2>
+        <p>@Model.TotalCount @(Model.TotalCount == 1 ? "pedido" : "pedidos") no histórico. Atualize status, estoque e logística.</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/customers"><svg class="icon"><use href="#i-users"></use></svg> Clientes</a>
+        <a class="admin-btn admin-btn--gold" href="/admin/coupons"><svg class="icon"><use href="#i-ticket"></use></svg> Cupons</a>
+    </div>
+</div>
+
+<div class="admin-order-tabs">
+    <a class="@(!Model.Status.HasValue ? "is-active" : "")" href="/admin/orders">Todos</a>
+    @foreach (var status in statuses)
+    {
+        <a class="@(Model.Status == status ? "is-active" : "")" href="/admin/orders?status=@status">@OrderDisplay.StatusLabel(status)</a>
+    }
+</div>
+
+<form class="admin-filterbar" method="get" action="/admin/orders">
+    <div class="admin-search">
+        <svg class="icon"><use href="#i-search"></use></svg>
+        <input type="search" name="q" value="@Model.Search" placeholder="Buscar pedido, cliente ou e-mail" aria-label="Buscar pedidos" />
+    </div>
+    <div class="admin-select">
+        <select name="status" aria-label="Filtrar por status">
+            <option value="">Todos os status</option>
+            @foreach (var status in statuses)
+            {
+                <option value="@status" selected="@(Model.Status == status)">@OrderDisplay.StatusLabel(status)</option>
+            }
+        </select>
+        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+    </div>
+    <button class="admin-btn admin-btn--dark" type="submit"><svg class="icon"><use href="#i-filter"></use></svg> Filtrar</button>
+    @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.Status.HasValue)
+    {
+        <a class="admin-filterbar__clear" href="/admin/orders">Limpar</a>
+    }
+</form>
+
+<section class="admin-card admin-card--flush">
+    @if (Model.Orders.Count == 0)
+    {
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-bag"></use></svg>
+            <h3>Nenhum pedido encontrado</h3>
+            <p>Ajuste os filtros ou aguarde as primeiras vendas.</p>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Data</th>
+                        <th>Pagamento</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th class="admin-table__right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>
+                                <a class="admin-table__strong" href="/admin/orders/@order.OrderNumber">@order.OrderNumber</a>
+                                <span class="table-sub">@order.Items.Sum(i => i.Quantity) @(order.Items.Sum(i => i.Quantity) == 1 ? "item" : "itens")</span>
+                            </td>
+                            <td>
+                                <div class="table-person">
+                                    <span class="table-avatar">@order.CustomerName.Initials()</span>
+                                    <div><strong>@order.CustomerName</strong><span>@order.Email</span></div>
+                                </div>
+                            </td>
+                            <td>
+                                @order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                                <span class="table-sub">@order.CreatedAt.ToLocalTime().ToString("HH:mm")</span>
+                            </td>
+                            <td><span class="table-muted">@OrderDisplay.PaymentLabel(order.PaymentMethod)</span></td>
+                            <td class="admin-table__num"><strong>@order.Total.ToBrl()</strong></td>
+                            <td><span class="@OrderDisplay.CssClass(order.Status)">@order.StatusLabel</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="admin-icon-btn" href="/admin/orders/@order.OrderNumber" title="Ver detalhes" aria-label="Ver detalhes">
+                                        <svg class="icon"><use href="#i-eye"></use></svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="admin-pagination" aria-label="Paginação de pedidos">
+                <span>Página @Model.Page de @Model.TotalPages</span>
+                <div>
+                    <a class="admin-icon-btn @(Model.Page <= 1 ? "is-disabled" : "")" href="@(Model.Page <= 1 ? "#" : PageUrl(Model.Page - 1))" aria-label="Anterior">
+                        <svg class="icon"><use href="#i-arrow-left"></use></svg>
+                    </a>
+                    @for (var i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Math.Max(1, Model.Page - 2) + 4); i++)
+                    {
+                        <a class="admin-page @(i == Model.Page ? "is-active" : "")" href="@PageUrl(i)">@i</a>
+                    }
+                    <a class="admin-icon-btn @(Model.Page >= Model.TotalPages ? "is-disabled" : "")" href="@(Model.Page >= Model.TotalPages ? "#" : PageUrl(Model.Page + 1))" aria-label="Próxima">
+                        <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </a>
+                </div>
+            </nav>
+        }
+    }
+</section>

@@ -1,0 +1,199 @@
+@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Produtos";
+    var categories = ViewBag.Categories as IReadOnlyList<Category> ?? new List<Category>();
+    var search = ViewBag.Search as string;
+    var status = ViewBag.Status as string;
+    var categoryId = ViewBag.CategoryId as int?;
+    var page = (int)(ViewBag.Page ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+    var total = (int)(ViewBag.Total ?? 0);
+
+    string PageUrl(int target)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(search)) query.Add($"q={Uri.EscapeDataString(search)}");
+        if (categoryId.HasValue && categoryId > 0) query.Add($"categoryId={categoryId}");
+        if (!string.IsNullOrWhiteSpace(status)) query.Add($"status={status}");
+        query.Add($"page={target}");
+        return $"/admin/products?{string.Join("&", query)}";
+    }
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo</span>
+        <h2>Produtos</h2>
+        <p>@total @(total == 1 ? "peça cadastrada" : "peças cadastradas") na loja. Controle preço, estoque, imagens e visibilidade.</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="/admin/categories">
+            <svg class="icon"><use href="#i-layers"></use></svg> Categorias
+        </a>
+        <a class="admin-btn admin-btn--gold" href="/admin/products/create">
+            <svg class="icon"><use href="#i-plus"></use></svg> Novo produto
+        </a>
+    </div>
+</div>
+
+<form class="admin-filterbar" method="get" action="/admin/products">
+    <div class="admin-search">
+        <svg class="icon"><use href="#i-search"></use></svg>
+        <input type="search" name="q" value="@search" placeholder="Buscar por nome ou SKU" aria-label="Buscar produtos" />
+    </div>
+    <div class="admin-select">
+        <select name="categoryId" aria-label="Filtrar por categoria">
+            <option value="">Todas as categorias</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category.Id" selected="@(categoryId == category.Id)">@category.Name</option>
+            }
+        </select>
+        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+    </div>
+    <div class="admin-select">
+        <select name="status" aria-label="Filtrar por status">
+            <option value="">Todos os status</option>
+            <option value="active" selected="@(status == "active")">Ativos</option>
+            <option value="inactive" selected="@(status == "inactive")">Inativos</option>
+            <option value="low" selected="@(status == "low")">Estoque baixo</option>
+        </select>
+        <svg class="icon"><use href="#i-chevron-down"></use></svg>
+    </div>
+    <button class="admin-btn admin-btn--dark" type="submit">
+        <svg class="icon"><use href="#i-filter"></use></svg> Filtrar
+    </button>
+    @if (!string.IsNullOrWhiteSpace(search) || !string.IsNullOrWhiteSpace(status) || (categoryId.HasValue && categoryId > 0))
+    {
+        <a class="admin-filterbar__clear" href="/admin/products">Limpar</a>
+    }
+</form>
+
+<section class="admin-card admin-card--flush">
+    @if (!Model.Any())
+    {
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-box"></use></svg>
+            <h3>Nenhum produto encontrado</h3>
+            <p>Ajuste os filtros ou cadastre a primeira peça desta seleção.</p>
+            <a class="admin-btn admin-btn--gold" href="/admin/products/create">Cadastrar produto</a>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table admin-table--products">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                        <th class="admin-table__right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="table-product">
+                                    <img src="@product.ImageUrl" alt="@product.Name" />
+                                    <div>
+                                        <a class="admin-table__strong" href="/produto/@product.Slug" target="_blank" rel="noopener">@product.Name</a>
+                                        <span>SKU @product.Sku</span>
+                                        <div class="table-product__flags">
+                                            @if (product.IsFeatured)
+                                            {
+                                                <em class="mini-flag">Destaque</em>
+                                            }
+                                            @if (product.IsNewArrival)
+                                            {
+                                                <em class="mini-flag">Novo</em>
+                                            }
+                                            @if (product.IsBestSeller)
+                                            {
+                                                <em class="mini-flag">Best seller</em>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="table-muted">@product.Category?.Name</span>
+                                @if (product.Collection is not null)
+                                {
+                                    <span class="table-sub">@product.Collection.Name</span>
+                                }
+                            </td>
+                            <td class="admin-table__num">
+                                <strong>@product.Price.ToBrl()</strong>
+                                @if (product.ComparePrice.HasValue)
+                                {
+                                    <span class="table-sub table-sub--strike">@product.ComparePrice.ToBrl()</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="stock-pill-admin @(product.Stock <= 0 ? "is-out" : product.Stock <= 15 ? "is-low" : "is-ok")">
+                                    @product.Stock un.
+                                </span>
+                            </td>
+                            <td>
+                                @if (product.IsActive)
+                                {
+                                    <span class="admin-status admin-status--ok"><i></i>Ativo</span>
+                                }
+                                else
+                                {
+                                    <span class="admin-status admin-status--off"><i></i>Inativo</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="admin-icon-btn" href="/produto/@product.Slug" target="_blank" rel="noopener" title="Ver na loja" aria-label="Ver na loja">
+                                        <svg class="icon"><use href="#i-eye"></use></svg>
+                                    </a>
+                                    <a class="admin-icon-btn" href="/admin/products/edit/@product.Id" title="Editar" aria-label="Editar">
+                                        <svg class="icon"><use href="#i-edit"></use></svg>
+                                    </a>
+                                    <form action="/admin/products/toggleactive/@product.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-icon-btn" type="submit" title="@(product.IsActive ? "Ocultar da loja" : "Ativar na loja")" aria-label="@(product.IsActive ? "Ocultar" : "Ativar")">
+                                            <svg class="icon"><use href="#i-@(product.IsActive ? "eye-off" : "eye")"></use></svg>
+                                        </button>
+                                    </form>
+                                    <form action="/admin/products/delete/@product.Id" method="post" data-confirm="Remover “@product.Name”? Produtos com pedidos serão apenas desativados.">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-icon-btn admin-icon-btn--danger" type="submit" title="Excluir" aria-label="Excluir">
+                                            <svg class="icon"><use href="#i-trash"></use></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <nav class="admin-pagination" aria-label="Paginação de produtos">
+                <span>Página @(page) de @totalPages</span>
+                <div>
+                    <a class="admin-icon-btn @(page <= 1 ? "is-disabled" : "")" href="@(page <= 1 ? "#" : PageUrl(page - 1))" aria-label="Anterior">
+                        <svg class="icon"><use href="#i-arrow-left"></use></svg>
+                    </a>
+                    @for (var i = Math.Max(1, page - 2); i <= Math.Min(totalPages, Math.Max(1, page - 2) + 4); i++)
+                    {
+                        <a class="admin-page @(i == page ? "is-active" : "")" href="@PageUrl(i)">@i</a>
+                    }
+                    <a class="admin-icon-btn @(page >= totalPages ? "is-disabled" : "")" href="@(page >= totalPages ? "#" : PageUrl(page + 1))" aria-label="Próxima">
+                        <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </a>
+                </div>
+            </nav>
+        }
+    }
+</section>

@@ -1,0 +1,17 @@
+@model ProductFormViewModel
+@{
+    ViewData["Title"] = "Novo produto";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo / Produtos</span>
+        <h2>Novo produto</h2>
+        <p>Cadastre uma nova peça com imagens, variações e posicionamento na vitrine.</p>
+    </div>
+    <a class="admin-btn admin-btn--ghost" href="/admin/products">
+        <svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar
+    </a>
+</div>
+
+@await Html.PartialAsync("_ProductForm", Model)

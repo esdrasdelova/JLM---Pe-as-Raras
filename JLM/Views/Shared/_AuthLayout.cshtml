@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#101010" />
+    <title>@ViewData["Title"] | JLM</title>
+    <meta name="description" content="Acesse sua conta JLM. Estilo que impõe presença." />
+    <link rel="icon" type="image/svg+xml" href="~/images/brand/jlm-mark.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="auth-body">
+    @await Html.PartialAsync("_Icons")
+    <div class="auth-shell">
+        <aside class="auth-visual">
+            <a class="auth-visual__brand" href="/">
+                <span class="brand__mark">JLM</span>
+                <span class="brand__tag">Estilo que impõe presença</span>
+            </a>
+            <div class="auth-visual__portrait">
+                <img src="~/images/brand/joao-laumir.png" alt="João Laumir, fundador e mascote da JLM" />
+                <span class="auth-visual__ring" aria-hidden="true"></span>
+            </div>
+            <div class="auth-visual__copy">
+                <span class="eyebrow eyebrow--light">Clube JLM</span>
+                <blockquote>“Presença não se pede emprestado. Se constrói peça por peça.”</blockquote>
+                <p><strong>João Laumir</strong> — fundador</p>
+            </div>
+            <div class="auth-visual__foot">
+                <span>Frete grátis acima de R$ 500</span>
+                <span>Compra 100% segura</span>
+            </div>
+        </aside>
+        <main class="auth-main">
+            <a class="auth-main__back" href="/">
+                <svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar à loja
+            </a>
+            @await Html.PartialAsync("_Toasts")
+            <div class="auth-card">
+                @RenderBody()
+            </div>
+            <p class="auth-main__legal">© @DateTime.Now.Year JLM. Todos os direitos reservados.</p>
+        </main>
+    </div>
+    @await Html.PartialAsync("_AjaxToast")
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

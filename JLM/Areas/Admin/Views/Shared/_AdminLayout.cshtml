@@ -1,0 +1,179 @@
+@using JLM.Data
+@inject ApplicationDbContext Db
+@{
+    var path = Context.Request.Path.Value?.ToLowerInvariant() ?? "/admin";
+    string NavClass(string href)
+    {
+        if (href == "/admin") return path == "/admin" || path == "/admin/dashboard" ? "admin-nav__link is-active" : "admin-nav__link";
+        return path.StartsWith(href, StringComparison.OrdinalIgnoreCase) ? "admin-nav__link is-active" : "admin-nav__link";
+    }
+
+    var unreadMessages = await Db.ContactMessages.CountAsync(m => !m.IsRead);
+    var pendingOrders = await Db.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
+    var adminName = User.Identity?.Name ?? "Administrador";
+    var pageTitle = ViewData["Title"] as string ?? "Painel";
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <title>@pageTitle | JLM Admin</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="~/images/brand/jlm-mark.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="admin-body">
+    @await Html.PartialAsync("_Icons")
+
+    <div class="admin-shell" data-admin-shell>
+        <aside class="admin-sidebar" data-admin-sidebar aria-label="Menu administrativo">
+            <div class="admin-sidebar__brand">
+                <a href="/admin" aria-label="Painel JLM">
+                    <span class="admin-brand__mark">JLM</span>
+                    <span class="admin-brand__label">Painel<span>administrativo</span></span>
+                </a>
+                <button class="admin-sidebar__close" type="button" data-admin-menu-close aria-label="Fechar menu">
+                    <svg class="icon"><use href="#i-close"></use></svg>
+                </button>
+            </div>
+
+            <nav class="admin-nav" aria-label="Navegação do painel">
+                <span class="admin-nav__label">Visão geral</span>
+                <a class="@NavClass("/admin")" href="/admin">
+                    <svg class="icon"><use href="#i-grid"></use></svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <span class="admin-nav__label">Catálogo</span>
+                <a class="@NavClass("/admin/products")" href="/admin/products">
+                    <svg class="icon"><use href="#i-box"></use></svg>
+                    <span>Produtos</span>
+                </a>
+                <a class="@NavClass("/admin/categories")" href="/admin/categories">
+                    <svg class="icon"><use href="#i-layers"></use></svg>
+                    <span>Categorias</span>
+                </a>
+                <a class="@NavClass("/admin/collections")" href="/admin/collections">
+                    <svg class="icon"><use href="#i-gem"></use></svg>
+                    <span>Coleções</span>
+                </a>
+
+                <span class="admin-nav__label">Vendas</span>
+                <a class="@NavClass("/admin/orders")" href="/admin/orders">
+                    <svg class="icon"><use href="#i-bag"></use></svg>
+                    <span>Pedidos</span>
+                    @if (pendingOrders > 0)
+                    {
+                        <em class="admin-nav__badge">@pendingOrders</em>
+                    }
+                </a>
+                <a class="@NavClass("/admin/coupons")" href="/admin/coupons">
+                    <svg class="icon"><use href="#i-ticket"></use></svg>
+                    <span>Cupons</span>
+                </a>
+
+                <span class="admin-nav__label">Relacionamento</span>
+                <a class="@NavClass("/admin/customers")" href="/admin/customers">
+                    <svg class="icon"><use href="#i-users"></use></svg>
+                    <span>Clientes</span>
+                </a>
+                <a class="@NavClass("/admin/messages")" href="/admin/messages">
+                    <svg class="icon"><use href="#i-mail"></use></svg>
+                    <span>Mensagens</span>
+                    @if (unreadMessages > 0)
+                    {
+                        <em class="admin-nav__badge">@unreadMessages</em>
+                    }
+                </a>
+                <a class="@NavClass("/admin/newsletter")" href="/admin/newsletter">
+                    <svg class="icon"><use href="#i-send"></use></svg>
+                    <span>Newsletter</span>
+                </a>
+            </nav>
+
+            <div class="admin-sidebar__foot">
+                <a class="admin-store-link" href="/" target="_blank" rel="noopener">
+                    <svg class="icon"><use href="#i-arrow-up-right"></use></svg>
+                    <span>Ver a loja</span>
+                </a>
+                <div class="admin-sidebar__user">
+                    <span class="admin-avatar">@(adminName.Initials())</span>
+                    <div>
+                        <strong>@adminName</strong>
+                        <span>Administrador</span>
+                    </div>
+                    <form action="/conta/sair" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" aria-label="Sair do painel" title="Sair">
+                            <svg class="icon"><use href="#i-logout"></use></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-topbar__left">
+                    <button class="admin-topbar__menu" type="button" data-admin-menu-open aria-label="Abrir menu" aria-controls="admin-sidebar">
+                        <svg class="icon"><use href="#i-menu"></use></svg>
+                    </button>
+                    <div class="admin-topbar__title">
+                        <span>JLM Admin</span>
+                        <h1>@pageTitle</h1>
+                    </div>
+                </div>
+
+                <div class="admin-topbar__actions">
+                    <form class="admin-topbar__search" action="/admin/products" method="get" role="search">
+                        <svg class="icon"><use href="#i-search"></use></svg>
+                        <input type="search" name="q" placeholder="Buscar produtos, SKU..." value="@(Context.Request.Query["q"])" aria-label="Buscar no painel" />
+                    </form>
+                    <a class="admin-topbar__icon" href="/admin/messages" aria-label="Mensagens não lidas">
+                        <svg class="icon"><use href="#i-bell"></use></svg>
+                        @if (unreadMessages > 0)
+                        {
+                            <span>@unreadMessages</span>
+                        }
+                    </a>
+                    <a class="admin-topbar__icon admin-topbar__icon--desktop" href="/" target="_blank" rel="noopener" aria-label="Abrir loja">
+                        <svg class="icon"><use href="#i-home"></use></svg>
+                    </a>
+                    <span class="admin-topbar__divider" aria-hidden="true"></span>
+                    <div class="admin-topbar__profile">
+                        <span class="admin-avatar">@(adminName.Initials())</span>
+                        <div>
+                            <strong>@adminName</strong>
+                            <span>Administrador</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            @await Html.PartialAsync("_Toasts")
+
+            <main class="admin-content" id="admin-content">
+                @RenderBody()
+            </main>
+
+            <footer class="admin-footer">
+                <p>© @DateTime.Now.Year JLM — Painel administrativo</p>
+                <p>Estilo que impõe presença.</p>
+            </footer>
+        </div>
+    </div>
+
+    <div class="admin-overlay" data-admin-overlay aria-hidden="true"></div>
+    @await Html.PartialAsync("_AjaxToast")
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

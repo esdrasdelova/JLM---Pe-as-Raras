@@ -1,0 +1,126 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Minha conta";
+    ViewData["Description"] = "Sua área exclusiva JLM: pedidos, dados e preferências.";
+    ViewData["BodyClass"] = "page-account";
+    var recentOrders = ViewBag.RecentOrders as IReadOnlyList<Order> ?? new List<Order>();
+    var firstName = Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "cliente";
+    var memberSince = Model.CreatedAt.ToLocalTime();
+}
+
+<section class="page-intro page-intro--account">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><span aria-current="page">Minha conta</span>
+            </nav>
+            <span class="eyebrow">Área do cliente</span>
+            <h1>Olá, <em>@firstName.</em></h1>
+            <p class="page-intro__sub">Bem-vindo de volta à sua área JLM. Aqui está o resumo da sua presença.</p>
+        </div>
+        <div class="account-badge">
+            <span class="account-badge__initials">@Model.FullName.Initials()</span>
+            <div>
+                <strong>Cliente JLM</strong>
+                <span>Desde @memberSince.ToString("MM/yyyy")</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section account">
+    <div class="container account__layout">
+        @await Html.PartialAsync("_AccountNav")
+
+        <div class="account__content">
+            <div class="account-stats">
+                <article>
+                    <span class="account-stats__icon"><svg class="icon"><use href="#i-box"></use></svg></span>
+                    <div><strong>@Model.OrdersCount</strong><span>@(Model.OrdersCount == 1 ? "pedido realizado" : "pedidos realizados")</span></div>
+                </article>
+                <article>
+                    <span class="account-stats__icon"><svg class="icon"><use href="#i-chart"></use></svg></span>
+                    <div><strong>@Model.TotalSpent.ToBrl()</strong><span>total investido</span></div>
+                </article>
+                <article>
+                    <span class="account-stats__icon"><svg class="icon"><use href="#i-heart"></use></svg></span>
+                    <div><strong>Favoritos</strong><span>sua seleção pessoal</span></div>
+                    <a href="/favoritos">Ver <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                </article>
+            </div>
+
+            <div class="account-section">
+                <div class="account-section__head">
+                    <div>
+                        <span class="eyebrow">Histórico</span>
+                        <h2>Pedidos recentes</h2>
+                    </div>
+                    <a class="link-arrow" href="/conta/pedidos">Ver todos <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                </div>
+
+                @if (recentOrders.Count == 0)
+                {
+                    <div class="account-empty">
+                        <svg class="icon"><use href="#i-box"></use></svg>
+                        <div>
+                            <h3>Nenhum pedido ainda</h3>
+                            <p>Sua primeira peça JLM está esperando. Explore a coleção e comece a construir presença.</p>
+                        </div>
+                        <a class="btn btn--gold" href="/catalogo">Explorar coleção</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="order-list">
+                        @foreach (var order in recentOrders)
+                        {
+                            <a class="order-row" href="/conta/pedidos/@order.OrderNumber">
+                                <div class="order-row__products">
+                                    @foreach (var item in order.Items.Take(3))
+                                    {
+                                        <img src="@item.ProductImageUrl" alt="@item.ProductName" />
+                                    }
+                                </div>
+                                <div class="order-row__info">
+                                    <strong>@order.OrderNumber</strong>
+                                    <span>@order.CreatedAt.ToLocalTime().ToShortDate() · @order.Items.Sum(i => i.Quantity) @(order.Items.Sum(i => i.Quantity) == 1 ? "item" : "itens")</span>
+                                </div>
+                                <span class="@OrderDisplay.CssClass(order.Status)">@order.StatusLabel</span>
+                                <em>@order.Total.ToBrl()</em>
+                                <svg class="icon order-row__arrow"><use href="#i-chevron-right"></use></svg>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="account-grid">
+                <div class="account-section">
+                    <div class="account-section__head">
+                        <div>
+                            <span class="eyebrow">Cadastro</span>
+                            <h2>Dados pessoais</h2>
+                        </div>
+                        <a class="icon-btn" href="/conta/editar" aria-label="Editar dados"><svg class="icon"><use href="#i-edit"></use></svg></a>
+                    </div>
+                    <dl class="info-list">
+                        <div><dt>Nome</dt><dd>@Model.FullName</dd></div>
+                        <div><dt>E-mail</dt><dd>@Model.Email</dd></div>
+                        <div><dt>Telefone</dt><dd>@(string.IsNullOrWhiteSpace(Model.Phone) ? "Não informado" : Model.Phone)</dd></div>
+                        <div><dt>CPF</dt><dd>@(string.IsNullOrWhiteSpace(Model.Cpf) ? "Não informado" : Model.Cpf)</dd></div>
+                        <div><dt>Endereço</dt><dd>@(string.IsNullOrWhiteSpace(Model.Address) ? "Não informado" : $"{Model.Address}, {Model.AddressNumber} — {Model.City}/{Model.State}")</dd></div>
+                    </dl>
+                    <a class="btn btn--ghost btn--block" href="/conta/editar">Editar dados</a>
+                </div>
+
+                <div class="account-section account-section--mascot">
+                    <img src="~/images/brand/joao-laumir.png" alt="João Laumir" loading="lazy" />
+                    <blockquote>“A melhor peça é aquela que você não precisa explicar.”</blockquote>
+                    <strong>João Laumir</strong>
+                    <span>Fundador da JLM</span>
+                    <a class="link-arrow" href="/colecoes/edicao-laumir">Ver Edição Laumir <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

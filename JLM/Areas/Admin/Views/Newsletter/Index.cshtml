@@ -1,0 +1,81 @@
+@model IEnumerable<NewsletterSubscriber>
+@{
+    ViewData["Title"] = "Newsletter";
+    var subscribers = Model.ToList();
+    var emails = string.Join(", ", subscribers.Select(s => s.Email));
+    var active = subscribers.Count(s => s.IsActive);
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Relacionamento</span>
+        <h2>Newsletter</h2>
+        <p>@subscribers.Count @(subscribers.Count == 1 ? "inscrito" : "inscritos") · @active @(active == 1 ? "ativo" : "ativos"). Copie os e-mails para usar em campanhas.</p>
+    </div>
+    @if (subscribers.Count > 0)
+    {
+        <button class="admin-btn admin-btn--gold" type="button" data-copy="@emails">
+            <svg class="icon"><use href="#i-copy"></use></svg> Copiar e-mails
+        </button>
+    }
+</div>
+
+<section class="admin-card admin-card--flush">
+    @if (subscribers.Count == 0)
+    {
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-send"></use></svg>
+            <h3>Nenhum inscrito ainda</h3>
+            <p>Quem assinar a newsletter pelo rodapé da loja será listado aqui automaticamente.</p>
+            <a class="admin-btn admin-btn--gold" href="/" target="_blank" rel="noopener">Ver a loja</a>
+        </div>
+    }
+    else
+    {
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>E-mail</th>
+                        <th>Status</th>
+                        <th>Inscrição</th>
+                        <th class="admin-table__right"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var subscriber in subscribers)
+                    {
+                        <tr>
+                            <td>
+                                <div class="table-person">
+                                    <span class="table-avatar">@subscriber.Email.Substring(0, 1).ToUpperInvariant()</span>
+                                    <div>
+                                        <a class="admin-table__strong" href="mailto:@subscriber.Email">@subscriber.Email</a>
+                                        <span>Newsletter JLM</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="admin-status @(subscriber.IsActive ? "admin-status--ok" : "admin-status--off")"><i></i>@(subscriber.IsActive ? "Ativo" : "Inativo")</span>
+                            </td>
+                            <td>@subscriber.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="admin-icon-btn" type="button" data-copy="@subscriber.Email" aria-label="Copiar e-mail" title="Copiar e-mail">
+                                        <svg class="icon"><use href="#i-copy"></use></svg>
+                                    </button>
+                                    <form action="/admin/newsletter/remove/@subscriber.Id" method="post" data-confirm="Remover @subscriber.Email da newsletter?">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-icon-btn admin-icon-btn--danger" type="submit" aria-label="Remover inscrito" title="Remover">
+                                            <svg class="icon"><use href="#i-trash"></use></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

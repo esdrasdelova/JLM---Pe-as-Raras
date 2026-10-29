@@ -1,0 +1,71 @@
+@model IReadOnlyList<Order>
+@{
+    ViewData["Title"] = "Meus pedidos";
+    ViewData["Description"] = "Acompanhe seus pedidos JLM.";
+    ViewData["BodyClass"] = "page-account";
+}
+
+<section class="page-intro page-intro--small">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><a href="/conta">Minha conta</a><span>/</span><span aria-current="page">Pedidos</span>
+            </nav>
+            <span class="eyebrow">Histórico</span>
+            <h1>Meus <em>pedidos.</em></h1>
+        </div>
+        <a class="btn btn--ghost" href="/catalogo">Continuar comprando</a>
+    </div>
+</section>
+
+<section class="section account">
+    <div class="container account__layout">
+        @await Html.PartialAsync("_AccountNav")
+
+        <div class="account__content">
+            @if (Model.Count == 0)
+            {
+                <div class="empty-state empty-state--small">
+                    <div class="empty-state__mascot"><img src="~/images/brand/joao-laumir.png" alt="João Laumir" /></div>
+                    <span class="eyebrow">Nenhum pedido</span>
+                    <h2>Sua história com a JLM começa agora.</h2>
+                    <p>Quando você fizer seu primeiro pedido, ele aparecerá aqui com todas as informações de entrega.</p>
+                    <a class="btn btn--gold" href="/catalogo">Explorar coleção</a>
+                </div>
+            }
+            else
+            {
+                <div class="account-section">
+                    <div class="account-section__head">
+                        <div><span class="eyebrow">@Model.Count @(Model.Count == 1 ? "pedido" : "pedidos")</span><h2>Todos os pedidos</h2></div>
+                    </div>
+                    <div class="order-list order-list--full">
+                        @foreach (var order in Model)
+                        {
+                            <a class="order-row" href="/conta/pedidos/@order.OrderNumber">
+                                <div class="order-row__products">
+                                    @foreach (var item in order.Items.Take(3))
+                                    {
+                                        <img src="@item.ProductImageUrl" alt="@item.ProductName" />
+                                    }
+                                    @if (order.Items.Count > 3)
+                                    {
+                                        <span class="order-row__more">+@(order.Items.Count - 3)</span>
+                                    }
+                                </div>
+                                <div class="order-row__info">
+                                    <strong>@order.OrderNumber</strong>
+                                    <span>@order.CreatedAt.ToLocalTime().ToLongDate()</span>
+                                    <span class="order-row__items">@string.Join(" · ", order.Items.Take(2).Select(i => i.ProductName))@(order.Items.Count > 2 ? "..." : "")</span>
+                                </div>
+                                <span class="@OrderDisplay.CssClass(order.Status)">@order.StatusLabel</span>
+                                <em>@order.Total.ToBrl()</em>
+                                <svg class="icon order-row__arrow"><use href="#i-chevron-right"></use></svg>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

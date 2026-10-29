@@ -1,0 +1,71 @@
+@model Product
+@{
+    var currentUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var categoryName = Model.Category?.Name ?? "JLM";
+}
+<article class="product-card" data-product-card>
+    <a class="product-card__media" href="/produto/@Model.Slug" aria-label="@Model.Name">
+        <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" width="600" height="750" />
+        <span class="product-card__shade" aria-hidden="true"></span>
+        @if (Model.HasDiscount)
+        {
+            <span class="product-card__badge product-card__badge--sale">-@Model.DiscountPercent%</span>
+        }
+        else if (Model.IsNewArrival)
+        {
+            <span class="product-card__badge">Novo</span>
+        }
+        else if (Model.IsBestSeller)
+        {
+            <span class="product-card__badge product-card__badge--dark">Mais vendido</span>
+        }
+        @if (Model.Stock <= 0)
+        {
+            <span class="product-card__soldout">Esgotado</span>
+        }
+    </a>
+
+    <div class="product-card__actions">
+        <form action="/favoritos/alternar" method="post" data-ajax-form data-wishlist-form>
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <input type="hidden" name="returnUrl" value="@currentUrl" />
+            <button type="submit" class="product-card__icon" aria-label="Adicionar @Model.Name aos favoritos" data-wishlist-button>
+                <svg class="icon"><use href="#i-heart"></use></svg>
+            </button>
+        </form>
+        @if (Model.Stock > 0)
+        {
+            <form action="/carrinho/adicionar" method="post" data-ajax-form data-add-to-cart>
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" value="1" />
+                <input type="hidden" name="returnUrl" value="@currentUrl" />
+                <button type="submit" class="product-card__quick">
+                    <svg class="icon"><use href="#i-bag"></use></svg>
+                    <span>Adicionar</span>
+                </button>
+            </form>
+        }
+    </div>
+
+    <div class="product-card__body">
+        <p class="product-card__eyebrow">@categoryName</p>
+        <h3 class="product-card__title"><a href="/produto/@Model.Slug">@Model.Name</a></h3>
+        <div class="product-card__meta">
+            <div class="product-card__price">
+                @if (Model.HasDiscount)
+                {
+                    <span class="price price--sale">@Model.Price.ToBrl()</span>
+                    <span class="price price--old">@Model.ComparePrice.ToBrl()</span>
+                }
+                else
+                {
+                    <span class="price">@Model.Price.ToBrl()</span>
+                }
+            </div>
+            <span class="product-card__rating"><svg class="icon"><use href="#i-star"></use></svg>@Model.Rating.ToString("0.0")</span>
+        </div>
+        <p class="product-card__installments">@Model.Price.Installments(3)</p>
+    </div>
+</article>

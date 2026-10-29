@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Acesso negado";
+    ViewData["Description"] = "Você não tem permissão para acessar esta página.";
+    ViewData["BodyClass"] = "page-error";
+}
+
+<section class="error-page">
+    <div class="container error-page__inner">
+        <div class="error-page__copy">
+            <span class="eyebrow">Erro 403</span>
+            <p class="error-page__code">403</p>
+            <h1>Essa área é restrita.</h1>
+            <p>Sua conta não tem permissão para acessar esta página. Se você acredita que isso é um engano, fale com o atendimento JLM.</p>
+            <div class="error-page__actions">
+                <a class="btn btn--gold" href="/conta">Ir para minha conta <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                <a class="btn btn--ghost" href="/">Voltar ao início</a>
+            </div>
+        </div>
+        <div class="error-page__visual">
+            <img src="~/images/brand/joao-laumir.png" alt="João Laumir" />
+            <div class="error-page__bubble">“Nem toda porta é para todo mundo. A sua está logo ali.”</div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,25 @@
+@model ProductFormViewModel
+@{
+    ViewData["Title"] = "Editar produto";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo / Produtos</span>
+        <h2>Editar produto</h2>
+        <p>Atualize os dados de “@Model.Name”. Alterações entram no ar imediatamente.</p>
+    </div>
+    <div class="admin-page-head__actions">
+        @if (!string.IsNullOrWhiteSpace(Model.Slug))
+        {
+            <a class="admin-btn admin-btn--ghost" href="/produto/@Model.Slug" target="_blank" rel="noopener">
+                <svg class="icon"><use href="#i-eye"></use></svg> Ver na loja
+            </a>
+        }
+        <a class="admin-btn admin-btn--ghost" href="/admin/products">
+            <svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar
+        </a>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ProductForm", Model)

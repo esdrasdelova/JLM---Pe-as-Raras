@@ -1,0 +1,103 @@
+@model AdminMessagesViewModel
+@{
+    ViewData["Title"] = "Mensagens";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Relacionamento</span>
+        <h2>Mensagens</h2>
+        <p>@Model.Messages.Count @(Model.Messages.Count == 1 ? "mensagem" : "mensagens") no filtro atual · @Model.UnreadCount não @(Model.UnreadCount == 1 ? "lida" : "lidas").</p>
+    </div>
+    <a class="admin-btn admin-btn--ghost" href="/admin/customers">
+        <svg class="icon"><use href="#i-users"></use></svg> Clientes
+    </a>
+</div>
+
+<div class="admin-tabs" role="tablist" aria-label="Filtro de mensagens">
+    <a class="admin-tab @(string.IsNullOrEmpty(Model.Filter) ? "is-active" : "")" href="/admin/messages" role="tab">
+        Todas
+    </a>
+    <a class="admin-tab @(Model.Filter == "unread" ? "is-active" : "")" href="/admin/messages?filter=unread" role="tab">
+        Não lidas
+        @if (Model.UnreadCount > 0)
+        {
+            <em>@Model.UnreadCount</em>
+        }
+    </a>
+</div>
+
+@if (Model.Messages.Count == 0)
+{
+    <section class="admin-card">
+        <div class="admin-empty admin-empty--large">
+            <svg class="icon"><use href="#i-mail"></use></svg>
+            <h3>Nenhuma mensagem @(Model.Filter == "unread" ? "não lida" : "recebida")</h3>
+            <p>As mensagens enviadas pelo formulário de contato da loja aparecerão aqui.</p>
+            <a class="admin-btn admin-btn--gold" href="/admin/messages">Ver todas</a>
+        </div>
+    </section>
+}
+else
+{
+    <div class="message-list">
+        @foreach (var message in Model.Messages)
+        {
+            <article class="message-card @(message.IsRead ? "is-read" : "is-unread")">
+                <div class="message-card__top">
+                    <div class="message-card__person">
+                        <span class="table-avatar">@message.Name.Initials()</span>
+                        <div>
+                            <strong>@message.Name</strong>
+                            <a href="mailto:@message.Email">@message.Email</a>
+                        </div>
+                    </div>
+                    <div class="message-card__meta">
+                        @if (!message.IsRead)
+                        {
+                            <span class="admin-status admin-status--warn"><i></i>Nova</span>
+                        }
+                        <time datetime="@message.CreatedAt.ToString("o")" title="@message.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")">
+                            <svg class="icon"><use href="#i-clock"></use></svg>
+                            @message.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </time>
+                    </div>
+                </div>
+
+                <div class="message-card__body">
+                    <span class="admin-eyebrow">@message.Subject</span>
+                    <p>@message.Message</p>
+                </div>
+
+                <div class="message-card__foot">
+                    <div class="message-card__contacts">
+                        @if (!string.IsNullOrWhiteSpace(message.Phone))
+                        {
+                            <a class="admin-btn admin-btn--dark admin-btn--sm" href="tel:@message.Phone">
+                                <svg class="icon"><use href="#i-phone"></use></svg> @message.Phone
+                            </a>
+                        }
+                        <a class="admin-btn admin-btn--dark admin-btn--sm" href="mailto:@message.Email?subject=Re: @message.Subject">
+                            <svg class="icon"><use href="#i-send"></use></svg> Responder
+                        </a>
+                    </div>
+                    <div class="message-card__actions">
+                        <form action="/admin/messages/toggleread/@message.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-btn admin-btn--ghost admin-btn--sm" type="submit">
+                                <svg class="icon"><use href="#i-@(message.IsRead ? "eye-off" : "check")"></use></svg>
+                                @(message.IsRead ? "Marcar como não lida" : "Marcar como lida")
+                            </button>
+                        </form>
+                        <form action="/admin/messages/delete/@message.Id" method="post" data-confirm="Excluir definitivamente a mensagem de @message.Name?">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-icon-btn admin-icon-btn--danger" type="submit" aria-label="Excluir mensagem" title="Excluir">
+                                <svg class="icon"><use href="#i-trash"></use></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}

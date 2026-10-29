@@ -1,0 +1,18 @@
+@model Collection
+@{
+    ViewData["Title"] = "Editar coleção";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo / Coleções</span>
+        <h2>Editar coleção</h2>
+        <p>Atualize a narrativa e a curadoria de “@Model.Name”.</p>
+    </div>
+    <div class="admin-page-head__actions">
+        <a class="admin-btn admin-btn--ghost" href="/colecoes/@Model.Slug" target="_blank" rel="noopener"><svg class="icon"><use href="#i-eye"></use></svg> Ver</a>
+        <a class="admin-btn admin-btn--ghost" href="/admin/collections"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+    </div>
+</div>
+
+@await Html.PartialAsync("_CollectionForm", Model)

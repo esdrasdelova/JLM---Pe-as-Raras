@@ -1,0 +1,60 @@
+@model IReadOnlyList<Collection>
+@{
+    ViewData["Title"] = "Coleções";
+    ViewData["Description"] = "As coleções JLM: Rua & Presença, Noite Dourada, Essenciais JLM e Edição Laumir.";
+    ViewData["BodyClass"] = "page-collections";
+}
+
+<section class="collections-hero">
+    <div class="container collections-hero__inner">
+        <nav class="breadcrumbs" aria-label="Trilha de navegação">
+            <a href="/">Início</a><span>/</span><span aria-current="page">Coleções</span>
+        </nav>
+        <span class="eyebrow">Curadoria por atmosfera</span>
+        <h1>Quatro coleções.<br /><em>Uma assinatura.</em></h1>
+        <p>Cada linha nasce de um momento específico: a rua, a noite, o essencial e o colecionável. Escolha a sua.</p>
+    </div>
+</section>
+
+<section class="collections-list">
+    <div class="container">
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            var collection = Model[i];
+            <article class="collection-row @(i % 2 == 1 ? "collection-row--reverse" : "")" data-reveal>
+                <a class="collection-row__media" href="/colecoes/@collection.Slug">
+                    <img src="@collection.ImageUrl" alt="@collection.Name" loading="lazy" />
+                    <span class="collection-row__index">0@(i + 1)</span>
+                </a>
+                <div class="collection-row__body">
+                    <span class="eyebrow">@collection.Tagline</span>
+                    <h2>@collection.Name</h2>
+                    <p>@collection.Description</p>
+                    <div class="collection-row__meta">
+                        <span><svg class="icon"><use href="#i-layers"></use></svg> @(collection.Products?.Count(p => p.IsActive) ?? 0) peças</span>
+                        @if (collection.IsFeatured)
+                        {
+                            <span class="badge badge--gold">Coleção em destaque</span>
+                        }
+                    </div>
+                    <a class="btn btn--dark" href="/colecoes/@collection.Slug">
+                        Explorar coleção <svg class="icon"><use href="#i-arrow-right"></use></svg>
+                    </a>
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+<section class="cta-band">
+    <div class="container cta-band__inner">
+        <div>
+            <span class="eyebrow eyebrow--light">Não sabe por onde começar?</span>
+            <h2>Nos deixe <em>escolher</em> por você.</h2>
+        </div>
+        <div class="cta-band__actions">
+            <a class="btn btn--gold" href="/catalogo?ordenar=rating">Ver mais vendidos</a>
+            <a class="btn btn--ghost-light" href="/contato">Falar com consultor</a>
+        </div>
+    </div>
+</section>

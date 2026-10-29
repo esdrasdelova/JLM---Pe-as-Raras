@@ -1,0 +1,57 @@
+@model LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Entrar";
+}
+
+<div class="auth-card__head">
+    <span class="eyebrow">Área do cliente</span>
+    <h1>Bem-vindo<br /><em>de volta.</em></h1>
+    <p>Acesse sua conta para acompanhar pedidos, favoritos e finalizar compras mais rápido.</p>
+</div>
+
+<form action="/conta/entrar" method="post" class="auth-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReturnUrl" />
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+    <div class="field">
+        <label asp-for="Email">E-mail</label>
+        <input asp-for="Email" type="email" autocomplete="email" placeholder="voce@email.com" autofocus />
+        <span asp-validation-for="Email" class="field-error"></span>
+    </div>
+
+    <div class="field">
+        <label asp-for="Password">Senha</label>
+        <div class="input-password">
+            <input asp-for="Password" autocomplete="current-password" placeholder="Sua senha" data-password-input />
+            <button type="button" data-password-toggle aria-label="Mostrar senha">
+                <svg class="icon"><use href="#i-eye"></use></svg>
+            </button>
+        </div>
+        <span asp-validation-for="Password" class="field-error"></span>
+    </div>
+
+    <div class="auth-form__row">
+        <label class="check">
+            <input asp-for="RememberMe" />
+            <span>Manter conectado</span>
+        </label>
+        <a href="/contato">Esqueci minha senha</a>
+    </div>
+
+    <button type="submit" class="btn btn--gold btn--block btn--lg">
+        Entrar na conta <svg class="icon"><use href="#i-arrow-right"></use></svg>
+    </button>
+</form>
+
+<div class="auth-divider"><span>ou</span></div>
+
+<a class="btn btn--ghost btn--block" href="/conta/cadastrar">Criar uma conta JLM</a>
+
+<div class="auth-demo">
+    <strong>Demonstração</strong>
+    <p>Cliente: <code>cliente@jlmstore.com.br</code> · <code>Jlm@@2026</code></p>
+</div>
+
+<p class="auth-card__foot">Ao entrar, você concorda com nossos <a href="/privacidade">termos e política de privacidade</a>.</p>

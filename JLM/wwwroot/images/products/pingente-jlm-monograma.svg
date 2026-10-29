@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" role="img" aria-label="Pingente JLM Monograma">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171614"/><stop offset=".55" stop-color="#111110"/><stop offset="1" stop-color="#080808"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="36%" r="62%">
+      <stop offset="0" stop-color="#E3C27E" stop-opacity=".18"/><stop offset=".6" stop-color="#E3C27E" stop-opacity=".04"/><stop offset="1" stop-color="#E3C27E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="fabric-hi"/><stop offset=".5" class="fabric-body"/><stop offset="1" class="fabric-body2"/>
+    </linearGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".06"/></feComponentTransfer></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="900" height="1125" fill="url(#bg)"/>
+  <rect width="900" height="1125" fill="url(#glow)"/>
+  <g fill="none" stroke="#E3C27E" opacity=".10">
+    <circle cx="450" cy="470" r="330"/><circle cx="450" cy="470" r="250"/><circle cx="450" cy="470" r="170"/>
+    <path d="M80 950 L820 190"/><path d="M60 760 L720 60"/><path d="M180 1080 L900 340"/>
+  </g>
+  <g opacity=".5" fill="#E3C27E">
+    <circle cx="118" cy="132" r="2.5"/><circle cx="782" cy="132" r="2.5"/><circle cx="118" cy="992" r="2.5"/><circle cx="782" cy="992" r="2.5"/>
+  </g>
+  <ellipse cx="450" cy="885" rx="250" ry="42" fill="#000" opacity=".55" filter="url(#soft)"/>
+  <g><style>.fabric-body{stop-color:#C9A45C} .fabric-body2{stop-color:#A98543} .fabric-hi{stop-color:#E3C27E} .st{stroke:#E6CE9A} .ink{fill:#17130b} .inkst{stroke:#17130b}</style><g fill="none">
+    <path d="M318 274 Q318 560 450 620 Q582 560 582 274" stroke="#C9A45C" stroke-width="14"/>
+    <path d="M318 274 Q318 560 450 620 Q582 560 582 274" stroke="#E3C27E" stroke-width="7" stroke-dasharray="7 6"/>
+    <rect x="360" y="628" width="180" height="230" rx="14" fill="#A98543" stroke="#E3C27E" stroke-width="6"/>
+    <rect x="378" y="646" width="144" height="194" rx="8" fill="none" stroke="#E6CE9A" opacity=".6"/>
+    <text x="450" y="740" text-anchor="middle" fill="#17130b" font-family="Georgia, serif" font-size="58" letter-spacing="2">JLM</text>
+    <path d="M402 774 L498 774" stroke="#17130b" stroke-width="2" opacity=".7"/>
+    <text x="450" y="806" text-anchor="middle" fill="#17130b" font-family="Arial, sans-serif" font-size="10" letter-spacing="4">PRESENÇA</text>
+    <circle cx="450" cy="616" r="13" fill="none" stroke="#E3C27E" stroke-width="5"/>
+  </g></g>
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <text x="450" y="1032" fill="#E3C27E" font-size="27" letter-spacing="11">JLM</text>
+    <text x="450" y="1062" fill="#8b8578" font-size="11" letter-spacing="5" font-family="Arial, sans-serif">EST. 2024 · SÃO PAULO</text>
+  </g>
+  <rect x="28" y="28" width="844" height="1069" fill="none" stroke="#E3C27E" stroke-opacity=".22"/>
+  <rect width="900" height="1125" filter="url(#grain)" opacity=".55"/>
+</svg>

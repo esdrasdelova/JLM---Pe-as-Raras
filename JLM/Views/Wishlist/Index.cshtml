@@ -1,0 +1,68 @@
+@model IReadOnlyList<Product>
+@{
+    ViewData["Title"] = "Favoritos";
+    ViewData["Description"] = "As peças JLM que você salvou para depois.";
+    ViewData["BodyClass"] = "page-wishlist";
+    var currentUrl = "/favoritos";
+}
+
+<section class="page-intro">
+    <div class="container page-intro__inner">
+        <div>
+            <nav class="breadcrumbs" aria-label="Trilha de navegação">
+                <a href="/">Início</a><span>/</span><span aria-current="page">Favoritos</span>
+            </nav>
+            <span class="eyebrow">Sua seleção pessoal</span>
+            <h1>Favoritos <em>(@Model.Count)</em></h1>
+        </div>
+        @if (Model.Count > 0)
+        {
+            <form action="/favoritos/limpar" method="post" data-confirm="Limpar toda a lista de favoritos?">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="link-danger"><svg class="icon"><use href="#i-trash"></use></svg> Limpar lista</button>
+            </form>
+        }
+    </div>
+</section>
+
+<section class="section wishlist">
+    <div class="container">
+        @if (Model.Count == 0)
+        {
+            <div class="empty-state empty-state--wishlist">
+                <div class="empty-state__mascot empty-state__mascot--large">
+                    <img src="~/images/brand/joao-laumir.png" alt="João Laumir, mascote da JLM" />
+                </div>
+                <span class="eyebrow">Nada salvo ainda</span>
+                <h2>Nem o João escolhe tudo de primeira.</h2>
+                <p>Salve as peças que chamaram sua atenção e volte quando estiver pronto. Sua lista fica guardada aqui.</p>
+                <div class="empty-state__actions">
+                    <a class="btn btn--gold" href="/catalogo">Explorar coleção <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+                    <a class="btn btn--ghost" href="/colecoes/edicao-laumir">Ver Edição Laumir</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="wishlist__toolbar">
+                <p><strong>@Model.Count @(Model.Count == 1 ? "peça salva" : "peças salvas")</strong> · Adicione ao carrinho quando quiser.</p>
+                <a class="link-arrow" href="/catalogo">Continuar explorando <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+            </div>
+
+            <div class="product-grid product-grid--four">
+                @foreach (var product in Model)
+                {
+                    @await Html.PartialAsync("_ProductCard", product)
+                }
+            </div>
+
+            <div class="wishlist__footer">
+                <div>
+                    <svg class="icon"><use href="#i-sparkle"></use></svg>
+                    <p>Peças em tiragem limitada podem esgotar. Garanta a sua.</p>
+                </div>
+                <a class="btn btn--gold" href="/catalogo">Ver coleção completa</a>
+            </div>
+        }
+    </div>
+</section>

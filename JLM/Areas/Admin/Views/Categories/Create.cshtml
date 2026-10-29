@@ -1,0 +1,15 @@
+@model Category
+@{
+    ViewData["Title"] = "Nova categoria";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Catálogo / Categorias</span>
+        <h2>Nova categoria</h2>
+        <p>Crie uma frente de navegação com identidade visual própria.</p>
+    </div>
+    <a class="admin-btn admin-btn--ghost" href="/admin/categories"><svg class="icon"><use href="#i-arrow-left"></use></svg> Voltar</a>
+</div>
+
+@await Html.PartialAsync("_CategoryForm", Model)
